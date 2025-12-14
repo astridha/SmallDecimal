@@ -57,7 +57,7 @@ Use maven dependency:
 ```xml
 <dependency>
     <groupId>io.github.astridha</groupId>
-    <artifactId>compact-decimal</artifactId>
+    <artifactId>decimal</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```
