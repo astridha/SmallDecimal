@@ -24,7 +24,7 @@ kotlin {
     jvm()
     //@Suppress("UnstableApiUsage")
     // androidLibrary {
-    android {
+    androidLibrary {
         namespace = "io.github.astridha.decimal"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()

@@ -20,33 +20,35 @@ public open class Decimal : Number, Comparable<Decimal> {
         return Pair(mantissa, decimals)
     }
 
-    private fun pack64(mantissa: Long, decimals: Int, omitNormalize:Boolean = false): Long {
-        var compactMantissa = mantissa
-        var decimalPlaces = decimals
-        if ((decimals != 0) and !(omitNormalize)) {
-            val (cm, cd) = normalize(mantissa, decimals)
-            compactMantissa = cm
-            decimalPlaces = cd
+    private fun pack64(pmantissa: Long, pdecimals: Int, omitNormalize:Boolean = false): Long {
+        var mantissa = pmantissa
+        var decimals =  if (mantissa == 0L) 0; else pdecimals
+        if (decimals != 0) {
+
+            // most important, correct negative decimal places, as we don't support them!
+            while (decimals < 0) {
+                mantissa *=10
+                decimals++
+            }
+            // truncate any empty decimal places
+            while ((decimals > 0) and (mantissa != 0L) and ((mantissa % 10) == 0L)) {
+                //mantissa = (mantissa+5) / 10
+                mantissa /= 10
+                decimals--
+            }
         }
-        return ((compactMantissa shl 4) or (decimalPlaces and 0x0F).toLong())
+        if ((decimals != 0) and !(omitNormalize)) {
+            val (nmantissa, ndecimals) = normalize(mantissa, decimals)
+            mantissa = nmantissa
+            decimals = ndecimals
+        }
+        return ((mantissa shl 4) or (decimals and MAX_DECIMALS).toLong())
     }
 
-    private fun normalize(mant:Long, deci:Int): Pair<Long, Int>{
+    private fun normalize(mant:Long, deci:Int): Pair<Long, Int> {
         var mantissa = mant
         var decimals = if (mantissa == 0L) 0; else deci
-        val maxdecimals = min(autoPrecision, 15)
-
-        // most important, correct negative decimal places, as we don't support them!
-        while (decimals < 0) {
-            mantissa *=10
-            decimals++
-        }
-        // truncate any empty decimal places
-        while ((decimals > 0) and (mantissa != 0L) and ((mantissa % 10) == 0L)) {
-            //mantissa = (mantissa+5) / 10
-            mantissa /= 10
-            decimals--
-        }
+        val maxdecimals = min(autoPrecision, MAX_DECIMALS)
         // now round if required
         var (newmantissa, newdecimals) = roundWithMode(mantissa, decimals, maxdecimals, autoRoundingMode)
 
@@ -60,31 +62,31 @@ public open class Decimal : Number, Comparable<Decimal> {
         return Pair(newmantissa, if (newmantissa == 0L)  0 else newdecimals)
     }
 
+    public fun clone(): Decimal {
+        val (mantissa, decimals) = unpack64()
+        return Decimal(mantissa, decimals, true)
+    }
+    public fun copy(): Decimal = this.clone() // which one is better?
+
 
     public companion object {
-
-        // constructor imitations, just for JVM :-(
-        // allows: Decimal(int), Decimal(Short), etc...
-       // @JvmName("constFromByte")
         public operator fun invoke(input:Byte): Decimal = Decimal(input.toLong(),0, true)
-       // @JvmName("constfromUByte")
         public operator fun invoke(input:UByte): Decimal = Decimal(input.toLong(),0, true)
-       // @JvmName("constFromShort")
         public operator fun invoke(input:Short): Decimal = Decimal(input.toLong(),0,true)
-       // @JvmName("constfromUShort")
         public operator fun invoke(input:UShort): Decimal = Decimal(input.toLong(),0, true)
-      //  @JvmName("constFromInt")
         public operator fun invoke(input:Int): Decimal = Decimal(input.toLong(),0,true)
-      //  @JvmName("constfromUInt")
         public operator fun invoke(input:UInt): Decimal= Decimal(input.toLong(),0,true)
-      //  @JvmName("constFromLong")
         public operator fun invoke(input:Long): Decimal = Decimal(input,0,true)
-      //  @JvmName("constfromULong")
         public operator fun invoke(input:ULong): Decimal = Decimal(input.toLong(),0, true)
 
         public const val MAX_VALUE: Long = +576460752303423487L
         public const val MIN_VALUE: Long = -576460752303423487L
         public const val NOT_A_NUMBER: Long = -576460752303423488L
+
+        public const val MAX_DECIMALS: Int = 15
+        public const val MAX_SIGNIFICANTS: Int = 17
+
+        public val ONE: Decimal = Decimal(1,0,true)
 
         public val NaN: Decimal = Decimal(NOT_A_NUMBER,0, true)
         // static (common) variables and functions
@@ -137,7 +139,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     public fun abs() : Decimal  {
         val (mantissa, decimals) = unpack64()
-        return Decimal(0-mantissa, decimals)
+        return Decimal(0-mantissa, decimals, true)
     }
     public val sign : Decimal
         get() {
@@ -171,7 +173,8 @@ public open class Decimal : Number, Comparable<Decimal> {
     public fun setScale(desiredprecision: Int, rounding: RoundingMode = autoRoundingMode): Decimal {
         val (mantissa, decimals) = unpack64()
         val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, desiredprecision, rounding)
-        return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces)
+        // here must be normalized
+        return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
     }
 
     /**********  Operators ************/
@@ -208,7 +211,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         val (thism, thisd) = unpack64()
         val (thatm, thatd) = other.unpack64()
         val (thismantissa,thatmantissa, decimals) = equalizeDecimals(thism, thisd, thatm, thatd)
-        return Decimal(thismantissa+thatmantissa, decimals)
+        return Decimal(thismantissa+thatmantissa, decimals, false)
     }
     public operator fun plus(other: Double) : Decimal = plus(other.toDecimal())
     public operator fun plus(other: Float) : Decimal = plus(other.toDecimal())
@@ -227,7 +230,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         val (thism, thisd) = unpack64()
         val (thatm, thatd) = other.unpack64()
         val (thismantissa,thatmantissa, decimals) = equalizeDecimals(thism, thisd, thatm, thatd)
-        return Decimal(thismantissa-thatmantissa, decimals)
+        return Decimal(thismantissa-thatmantissa, decimals, false)
     }
     public operator fun minus(other: Double) : Decimal = minus(other.toDecimal())
     public operator fun minus(other: Float) : Decimal = minus(other.toDecimal())
@@ -246,7 +249,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     public operator fun times(other: Decimal) : Decimal {
         val (thismantissa, thisdecimals) = unpack64()
         val (thatmantissa, thatdecimals) = other.unpack64()
-        return Decimal(thismantissa*thatmantissa, thisdecimals+thatdecimals)
+        return Decimal(thismantissa*thatmantissa, thisdecimals+thatdecimals, false)
     }
     public operator fun times(other: Double) : Decimal = times(other.toDecimal())
     public operator fun times(other: Float) : Decimal = times(other.toDecimal())
@@ -274,7 +277,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         while (resultd > min(autoPrecision, 15)) {
             resultm = (resultm+5)/10; resultd--
         }
-        return Decimal(resultm, resultd)
+        return Decimal(resultm, resultd, false)
     }
     public operator fun div(other: Double) : Decimal = div(other.toDecimal())
     public operator fun div(other: Float) : Decimal = div(other.toDecimal())
@@ -300,7 +303,7 @@ public open class Decimal : Number, Comparable<Decimal> {
             //if ((thism * (thism / thatm)) == thatm) break
             thism *=10; thisd++
         }
-        return Decimal(thism/thatm, thisd-thatd)
+        return Decimal(thism/thatm, thisd-thatd, false)
     }
 
     public operator fun rem(other:Decimal) : Decimal {
@@ -442,19 +445,19 @@ public open class Decimal : Number, Comparable<Decimal> {
         val match = decimalNumberRegex.matchEntire(numberstring) ?: return
         // will automatically call this(0L,0)
 
-        val expn = (match.groups["exp"]?.value ?: "0").toInt()
+        val exponent = (match.groups["exp"]?.value ?: "0").toInt()
 
-        val fractString = (match.groups["fract"]?.value ?: "0").trimEnd('0')
-        var decimPlcs = fractString.length
+        val fractionString = (match.groups["fract"]?.value ?: "0").trimEnd('0')
+        var decimalPlaces = fractionString.length
 
-        var intgString = match.groups["intg"]?.value ?: ""
+        var integerString = match.groups["intg"]?.value ?: ""
 
-        var mantString = intgString + fractString
-        decimPlcs -= expn                 // expn rechnet andersrum, 0 - expn = Nachkommastellen!
+        var mantissaString = integerString + fractionString
+        decimalPlaces -= exponent                 // expn rechnet andersrum, 0 - expn = Nachkommastellen!
 
-        if (mantString in listOf("+","- ", "")) mantString +="0"
-        val mantissa: Long = mantString.toLong()
-        val decimalplaces: Int = decimPlcs
+        if (mantissaString in listOf("+","- ", "")) mantissaString +="0"
+        val mantissa: Long = mantissaString.toLong()
+        val decimalplaces: Int = decimalPlaces
 
         decimal64 = pack64(mantissa, decimalplaces)
     }
@@ -462,7 +465,9 @@ public open class Decimal : Number, Comparable<Decimal> {
     public constructor (input:Float): this(input.toString())
     public constructor (input:Double): this(input.toString())
 
-    internal constructor (mantissa: Long, decimalplaces: Int, omitNormalize:Boolean = false)  {
+    public constructor (other: Decimal) { decimal64 = other.decimal64 }
+
+    internal constructor (mantissa: Long, decimalplaces: Int, omitNormalize:Boolean)  {
         decimal64 = pack64(mantissa,decimalplaces, omitNormalize)
     }
 
