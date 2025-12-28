@@ -45,7 +45,7 @@ kotlin {
             }
             //targetSdk = 34
             //versionCode = 1
-            //versionName = "1.0"
+            //versionName = "0.5"
 
             //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
@@ -113,8 +113,8 @@ mavenPublishing {
         licenses {
             license {
                 name = "MIT License"
-                url = "http://www.opensource.org/licenses/mit-license.php"
-                distribution = "http://www.opensource.org/licenses/mit-license.php"
+                url = "https://www.opensource.org/licenses/mit-license.php"
+                distribution = "https://www.opensource.org/licenses/mit-license.php"
             }
         }
         developers {
@@ -128,7 +128,7 @@ mavenPublishing {
             }
         }
         scm {
-            url = "http://github.com/astridha/decimal/"
+            url = "https://github.com/astridha/decimal/"
             connection = "scm:git:git://github.com/astridha/decimal.git"
             developerConnection = "scm:git:ssh://git@github.com/astridha/decimal/"
         }

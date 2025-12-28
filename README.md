@@ -20,13 +20,20 @@ It's small fixed 64bit footprint makes it possible to store it as an (unsigned) 
 
 
 ### Convenient usage
-Just use it like any other numeric type, with the extension *".Dc"*.
 
+#### No verbose type or class declaration
+
+Just use it like any other numeric type, just with the extension *".Dc"*.  
 Like *5.Dc* or *17.48.Dc*.
 
-When giving many decimal places, e.g. *15.000000000000001.Dc* (15 decimal places) rounding errors
-because of the inaccuracy and rounding problems of Float and Double numbers,
-better use: *"15.000000000000001".Dc*. This is a String constructor and avoids the Float/Double problems.
+When giving many decimal places, e.g. *15.000000000000001.Dc* (15 decimal places) rounding errors might occur, 
+because of the inaccuracy and rounding problems of Float and Double numbers.  
+Better use: *"15.000000000000001".Dc*. This is a String constructor and avoids the Float/Double problems.
+
+#### Arithmetical Operators are working
+
+Use arithmetical operators conveniently, like  
+*(7.5.Dc + 8.5.Dc) / 3.Dc*
 
 
 ### Import

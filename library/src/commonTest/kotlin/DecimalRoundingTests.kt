@@ -573,6 +573,16 @@ class ArithmeticRoundingTest {
                 13.7777.Dc.setScale(3).toPlainString(),
                 "operator roundingHalfEven(13.7777.Dc)"
             )
+            assertEquals(
+                "1600",
+                1550.Dc.setScale(-2, Decimal.RoundingMode.HALF_EVEN).toPlainString(),
+                "operator roundingHalfEven(1550.Dc) to -2"
+            )
+            assertEquals(
+                "1400",
+                1450.Dc.setScale(-2, Decimal.RoundingMode.HALF_EVEN).toPlainString(),
+                "operator roundingHalfEven(1450.Dc) to -2"
+            )
         }
     }
 
