@@ -27,7 +27,8 @@ public open class Decimal : Number, Comparable<Decimal> {
     internal enum class ArithmeticErrors { // max 15, for 4 Byte decimals field when mantissa == 0!
         ALL_OK,
         NO_NUMBER,
-        OVERFLOW
+        OVERFLOW,
+        DIV_0
 
     }
 
@@ -242,6 +243,10 @@ public open class Decimal : Number, Comparable<Decimal> {
     public operator fun div(other: Decimal) : Decimal {
         var (thism, thisd) = unpack64()
         val (thatm, thatd) = other.unpack64()
+        if (thatm == 0) {
+            if (shallThrowOnError) throw ArithmeticException("Division by 0")
+            return Decimal(0, ArithmeticErrors.DIV_0.ordinal,true)
+        }
         while ((thisd - thatd) < 17) {
             if ((thatm * (thism / thatm)) == thism) break // rest 0, done
             if (abs(thism) > (Long.MAX_VALUE/10)) break // would overflow
@@ -271,6 +276,10 @@ public open class Decimal : Number, Comparable<Decimal> {
     private fun integerdivided(other: Decimal) : Decimal {
         var (thism, thisd) = unpack64()
         var (thatm, thatd) = other.unpack64()
+        if (thatm == 0) {
+            if (shallThrowOnError) throw ArithmeticException("Division by 0")
+            return Decimal(0, ArithmeticErrors.DIV_0.ordinal,true)
+        }
         // preserve from running endlessly if thism cannot reach thatm!
         if (thatm > (Long.MAX_VALUE/10)) {
             thatm /= 10; thatd--
