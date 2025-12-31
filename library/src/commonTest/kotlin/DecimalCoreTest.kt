@@ -34,24 +34,24 @@ class DecimalCoreTest {
             "18500.000".Dc.toString(),
             "String.Dc Constructor: 18500.000"
         )
-        Decimal.setPrecision(2)
+        Decimal.setMaxDecimalPlaces(2)
         assertEquals(
             "18.5",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-        Decimal.setPrecision(0)
+        Decimal.setMaxDecimalPlaces(0)
         assertEquals(
             "19",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-        Decimal.setPrecision(15) // default
+        Decimal.setMaxDecimalPlaces(15) // default
     }
 
     @Test fun doubleConstructorTests() {
 
-        Decimal.setPrecision(15) // default
+        Decimal.setMaxDecimalPlaces(15) // default
         assertEquals(
             "100000.47",
             Decimal(100000.47).toRawDecimalString(),
@@ -82,7 +82,7 @@ class DecimalCoreTest {
             Decimal(15.00000000000001).toRawDecimalString(),
             "DoubleConstructor: 15 (d=14)"
         )
-        Decimal.setPrecision(5)
+        Decimal.setMaxDecimalPlaces(5)
         assertEquals(
             "15.000001",
             15.000001.toString(),
@@ -98,7 +98,7 @@ class DecimalCoreTest {
             15.000009.Dc.toString(),  // 6 places when precision is 5!
             "15.000009 Double (d=6, p=5) toString()"
         )
-        Decimal.setPrecision(6)
+        Decimal.setMaxDecimalPlaces(6)
         assertEquals(
             "15.000001",
             15.000001.Dc.toString(),  // 6 places when precision is 6!
@@ -109,7 +109,7 @@ class DecimalCoreTest {
             Decimal(15.000000000000009).toRawDecimalString(),
             "DoubleConstructor: 15.000000000000009 (d=15, p=6)"
         )
-        Decimal.setPrecision(15)
+        Decimal.setMaxDecimalPlaces(15)
         assertEquals(
             "15.000000000000009",
             Decimal(15.000000000000009).toRawDecimalString(),
@@ -124,7 +124,7 @@ class DecimalCoreTest {
 
     @Test fun floatConstructorTests() {
 
-        Decimal.setPrecision(15) // default
+        Decimal.setMaxDecimalPlaces(15) // default
         assertEquals(
             "100000.47",
             Decimal(100000.47F).toRawDecimalString(),

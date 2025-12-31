@@ -1,7 +1,5 @@
 package io.github.astridha.decimal
 
-import io.github.astridha.decimal.*
-
 @Throws(NumberFormatException::class)
 internal fun mkDecimalParseOrNull (rawNumberString: String, orNull: Boolean) : Pair <Long, Int>? {
     val cleanedNumberString = rawNumberString.replace("_","").replace(" ","")
@@ -14,7 +12,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, orNull: Boolean) : P
     if (match == null) {
         if (orNull) return null
         if (Decimal.getThrowOnErrors()) throw NumberFormatException("Invalid Decimal Format: \"$rawNumberString\"")
-        return Pair(0, Decimal.ArithmeticErrors.NO_NUMBER.ordinal)
+        return Pair(0, Decimal.ArithmeticErrors.NOT_A_NUMBER.ordinal)
 
     } else {
 

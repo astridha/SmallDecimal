@@ -21,7 +21,8 @@ internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMo
     }
 }
 
-// desired precision can be below 0, but decimalplaces is between 0 and 15, independent of autoprcision
+// desired decimals can be below 0, which means that the lowest pre-comma places will also be rounded to 0
+// but resulting decimal places stay between 0 and 15, independent of autoprcision
 internal fun roundWithMode(currentMantissa: Long, currentDecimals: Int, desiredDecimals: Int, roundingMode: Decimal.RoundingMode): Pair<Long, Int> {
     if (desiredDecimals >= currentDecimals) {
         // nothing to round

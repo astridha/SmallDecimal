@@ -25,8 +25,8 @@ public open class Decimal : Number, Comparable<Decimal> {
     }
 
     internal enum class ArithmeticErrors { // max 15, for 4 Byte decimals field when mantissa == 0!
-        ALL_OK,
-        NO_NUMBER,
+        OK,
+        NOT_A_NUMBER,
         OVERFLOW,
         DIV_0
 
@@ -42,7 +42,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         decimal64 = if (decimalPair != null) {
             pack64(decimalPair.first, decimalPair.second)
         } else {
-            pack64(0, ArithmeticErrors.NO_NUMBER.ordinal)
+            pack64(0, ArithmeticErrors.NOT_A_NUMBER.ordinal)
         }
     }
 
@@ -62,6 +62,13 @@ public open class Decimal : Number, Comparable<Decimal> {
     private fun unpack64(): Pair<Long, Int> {
         val decimals: Int = (decimal64 and 0x0FL).toInt()
         val mantissa: Long = (decimal64 shr 4)
+        if ((mantissa == 0L) and (decimals != 0) && shallThrowOnError) {
+            when (decimals) {
+                ArithmeticErrors.NOT_A_NUMBER.ordinal -> throw NumberFormatException("INVALID NUMBER FORMAT")
+                ArithmeticErrors.OVERFLOW.ordinal -> throw ArithmeticException("ARITHMETIC OVERFLOW")
+                ArithmeticErrors.DIV_0.ordinal -> throw ArithmeticException("DIVISION BY 0")
+            }
+        }
         return Pair(mantissa, decimals)
     }
 
@@ -118,11 +125,18 @@ public open class Decimal : Number, Comparable<Decimal> {
         return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
     }
 
-
-    public fun setScale(desiredprecision: Int, rounding: RoundingMode = autoRoundingMode): Decimal {
+    public fun round(desiredDecimals: Int) : Decimal  {
         val (mantissa, decimals) = unpack64()
-        val desiredDecimals = min(autoPrecision, desiredprecision) // or: min(MAX_DECIMALS, desiredprecision), and ignore autoPrecision?
-        val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, desiredDecimals, rounding)
+        val roundToDecimals = min(MAX_DECIMALS, desiredDecimals)
+        val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, roundToDecimals, RoundingMode.HALF_EVEN)
+        return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
+    }
+
+
+    public fun setScale(desiredDecimals: Int, rounding: RoundingMode = autoRoundingMode): Decimal {
+        val (mantissa, decimals) = unpack64()
+        val roundToDecimals = min(MAX_DECIMALS, desiredDecimals) // or: min(MAX_DECIMALS, desiredprecision), and ignore autoPrecision?
+        val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, roundToDecimals, rounding)
         return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
     }
 
@@ -243,7 +257,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     public operator fun div(other: Decimal) : Decimal {
         var (thism, thisd) = unpack64()
         val (thatm, thatd) = other.unpack64()
-        if (thatm == 0) {
+        if (thatm == 0L) {
             if (shallThrowOnError) throw ArithmeticException("Division by 0")
             return Decimal(0, ArithmeticErrors.DIV_0.ordinal,true)
         }
@@ -276,7 +290,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     private fun integerdivided(other: Decimal) : Decimal {
         var (thism, thisd) = unpack64()
         var (thatm, thatd) = other.unpack64()
-        if (thatm == 0) {
+        if (thatm == 0L) {
             if (shallThrowOnError) throw ArithmeticException("Division by 0")
             return Decimal(0, ArithmeticErrors.DIV_0.ordinal,true)
         }
@@ -369,6 +383,8 @@ public open class Decimal : Number, Comparable<Decimal> {
     public fun toUInt(roundingMode: RoundingMode): UInt = roundedMantissa(roundingMode).toUInt()
     public fun toUShort(roundingMode: RoundingMode): UShort = roundedMantissa(roundingMode).toUShort()
     public fun toUByte(roundingMode: RoundingMode): UByte = roundedMantissa(roundingMode).toUByte()
+    public fun roundToLong(): Long = roundedMantissa(RoundingMode.CEILING)
+    public fun roundToInt(): Int = roundedMantissa(RoundingMode.CEILING).toInt()
 
 
     /********************  Unformatted or formatted Output to human-readable Strings  ****************************/
@@ -525,7 +541,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
         public val ONE: Decimal = Decimal(1,0,true)
 
-        public val NaN: Decimal = Decimal(0, ArithmeticErrors.NO_NUMBER.ordinal, true)
+        public val NaN: Decimal = Decimal(0, ArithmeticErrors.NOT_A_NUMBER.ordinal, true)
         // static (common) variables and functions
 
         // throw exceptions on all kind of errors?
@@ -538,14 +554,14 @@ public open class Decimal : Number, Comparable<Decimal> {
 
         // for automatic rounding
         private var autoPrecision: Int = 15 /* 0 - 15 */
-        public fun setPrecision(prec: Int) {
-            autoPrecision = if (prec < 0) {
+        public fun setMaxDecimalPlaces(maxDecimalPlaces: Int) {
+            autoPrecision = if (maxDecimalPlaces < 0) {
                 0
-            } else if (prec > 15) {
+            } else if (maxDecimalPlaces > 15) {
                 15
-            } else prec
+            } else maxDecimalPlaces
         }
-        public fun getPrecision(): Int = autoPrecision
+        public fun getMaxDecimalPlaces(): Int = autoPrecision
 
         private var autoDecimalSeparator: Char = '.'
         private var autoGroupingSeparator: Char = ','

@@ -40,7 +40,7 @@ Use arithmetical operators conveniently, like
 
 ### Precision and display
 
-#### setPrecision(Int)
+#### setMaxDecimalPlaces(Int)
 sets the number of decimal places every Decimal will be rounded to automatically.  
 The supported range is from 0 to 15.   
 15 is the default value and the maximum supported precision.  
@@ -73,7 +73,7 @@ UNNECESSARY
 }
 ``` 
 
-There is a automatic rounding mode, which is per default *HALF_UP* (commercial rounding).
+There is an automatic rounding mode, which is per default *HALF_UP* (commercial rounding).
 This can be changed via **Decimal.setRoundingMode(roundingMode: RoundingMode)**.
 
 #### How to use
@@ -82,6 +82,20 @@ The rounding modes can be used in SetScale:
 ``` kotlin
 setScale(desiredprecision: Int, rounding: RoundingMode = autoRoundingMode): Decimal
 ```
+
+Furthermore, there are four standard rounding functions that round to whole values (no decimal places):
+``` kotlin
+trunc(): Decimal  // RoundingMode.DOWN
+
+floor(): Decimal  // RoundingMode.FLOOR
+
+ceil(): Decimal  // RoundingMode.CEILING
+
+round(): Decimal  // RoundingMode.HALF_EVEN
+``` 
+
+
+
 --------
 
 ### Import
