@@ -11,7 +11,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, orNull: Boolean) : P
 
     if (match == null) {
         if (orNull) return null
-        if (Decimal.getThrowOnErrors()) throw NumberFormatException("Invalid Decimal Format: \"$rawNumberString\"")
+        if (Decimal.getThrowOnErrors()) throw NumberFormatException("INVALID DECIMAL FORMAT: \"$rawNumberString\"")
         return Pair(0, Decimal.ArithmeticErrors.NOT_A_NUMBER.ordinal)
 
     } else {
@@ -21,7 +21,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, orNull: Boolean) : P
         val fractionString = (match.groups["fraction"]?.value ?: "0").trimEnd('0')
         var decimalPlaces = fractionString.length
 
-        var integerString = match.groups["integer"]?.value ?: ""
+        val integerString = match.groups["integer"]?.value ?: ""
 
         var mantissaString = integerString + fractionString
         decimalPlaces -= exponent                 // exponent calculates reverse, 0 - exponent = decimal places!

@@ -91,12 +91,12 @@ public open class Decimal : Number, Comparable<Decimal> {
         }
         // now round if required
         if ((decimals != 0) and !(omitNormalize)) {
-            val maxdecimals = min(autoPrecision, MAX_DECIMALS)
+            val maxdecimals = min(autoPrecision, MAX_DECIMAL_PLACES)
             val (nmantissa, ndecimals) = roundWithMode(mantissa, decimals, maxdecimals, autoRoundingMode)
             mantissa = nmantissa
             decimals = ndecimals
         }
-        return ((mantissa shl 4) or (decimals and MAX_DECIMALS).toLong())
+        return ((mantissa shl 4) or (decimals and MAX_DECIMAL_PLACES).toLong())
     }
 
 
@@ -109,33 +109,29 @@ public open class Decimal : Number, Comparable<Decimal> {
         val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, 0, RoundingMode.CEILING)
         return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
     }
+
     public fun floor() : Decimal  {
         val (mantissa, decimals) = unpack64()
         val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, 0, RoundingMode.FLOOR)
         return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
     }
+
     public fun truncate() : Decimal  {
         val (mantissa, decimals) = unpack64()
         val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, 0, RoundingMode.DOWN)
         return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
     }
+
     public fun round() : Decimal  {
         val (mantissa, decimals) = unpack64()
         val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, 0, RoundingMode.HALF_EVEN)
         return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
     }
 
-    public fun round(desiredDecimals: Int) : Decimal  {
-        val (mantissa, decimals) = unpack64()
-        val roundToDecimals = min(MAX_DECIMALS, desiredDecimals)
-        val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, roundToDecimals, RoundingMode.HALF_EVEN)
-        return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
-    }
-
 
     public fun setScale(desiredDecimals: Int, rounding: RoundingMode = autoRoundingMode): Decimal {
         val (mantissa, decimals) = unpack64()
-        val roundToDecimals = min(MAX_DECIMALS, desiredDecimals) // or: min(MAX_DECIMALS, desiredprecision), and ignore autoPrecision?
+        val roundToDecimals = min(MAX_DECIMAL_PLACES, desiredDecimals) // or: min(MAX_DECIMALS, desiredprecision), and ignore autoPrecision?
         val (newmantissa, newdecimalplaces) = roundWithMode(mantissa, decimals, roundToDecimals, rounding)
         return Decimal(newmantissa, if (newmantissa == 0L)  0 else newdecimalplaces,true)
     }
@@ -536,8 +532,9 @@ public open class Decimal : Number, Comparable<Decimal> {
         public const val MIN_VALUE: Long = -576460752303423487L
         //public const val NOT_A_NUMBER: Long = -576460752303423488L
 
-        public const val MAX_DECIMALS: Int = 15
-        public const val MAX_SIGNIFICANTS: Int = 17
+        public const val MAX_DECIMAL_PLACES: Int = 15
+        public const val MAX_DECIMAL_SIGNIFICANTS: Int = 17
+        public const val MAX_LONG_SIGNIFICANTS: Int = 19
 
         public val ONE: Decimal = Decimal(1,0,true)
 

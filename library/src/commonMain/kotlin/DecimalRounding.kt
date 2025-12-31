@@ -8,22 +8,27 @@ internal fun getPower10(exponent: Int) : Long { // only for between 0 and 16!!!
 }
 
 // first: multiplicator, second: a hint for the direction
-internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMode, positiveMantissa: Boolean) : Pair<Int, Int> {
+internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMode, isPositive: Boolean) : Pair<Int, Int> {
     return when (roundingMode) {
-        Decimal.RoundingMode.UP -> if (positiveMantissa) Pair(10, -1) else Pair(-10, 1)
+        Decimal.RoundingMode.UP -> if (isPositive) Pair(10, -1) else Pair(-10, 1)
         Decimal.RoundingMode.DOWN -> Pair(0, 0)
-        Decimal.RoundingMode.CEILING -> if (positiveMantissa) Pair(10, -1) else Pair(0, 0)
-        Decimal.RoundingMode.FLOOR -> if (positiveMantissa) Pair(0, 0) else Pair(-10, 1)
-        Decimal.RoundingMode.HALF_UP -> if (positiveMantissa) Pair(5, 0) else Pair(-5, 0)
-        Decimal.RoundingMode.HALF_DOWN -> if (positiveMantissa) Pair(5, -1) else Pair(-5, 1)
-        Decimal.RoundingMode.HALF_EVEN -> if (positiveMantissa) Pair(5, -0) else Pair(-5, 0)
+        Decimal.RoundingMode.CEILING -> if (isPositive) Pair(10, -1) else Pair(0, 0)
+        Decimal.RoundingMode.FLOOR -> if (isPositive) Pair(0, 0) else Pair(-10, 1)
+        Decimal.RoundingMode.HALF_UP -> if (isPositive) Pair(5, 0) else Pair(-5, 0)
+        Decimal.RoundingMode.HALF_DOWN -> if (isPositive) Pair(5, -1) else Pair(-5, 1)
+        Decimal.RoundingMode.HALF_EVEN -> if (isPositive) Pair(5, -0) else Pair(-5, 0)
         Decimal.RoundingMode.UNNECESSARY -> Pair(0, 0)
     }
 }
 
-// desired decimals can be below 0, which means that the lowest pre-comma places will also be rounded to 0
-// but resulting decimal places stay between 0 and 15, independent of autoprcision
-internal fun roundWithMode(currentMantissa: Long, currentDecimals: Int, desiredDecimals: Int, roundingMode: Decimal.RoundingMode): Pair<Long, Int> {
+// Cannot assume that raw values were previously stored in a Decimal, they may come from parsing!
+// desiredDecimals can be below 0, which means that the lowest pre-comma places will also be rounded to 0
+// but resulting decimal places must aim between 0 and 15, independent of autoprecision
+// and long rawMantissa must also be handled and be shortened if greater than MAX_VALUE/MIN_VALUE
+internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals: Int, roundingMode: Decimal.RoundingMode): Pair<Long, Int> {
+    var currentMantissa = rawMantissa
+    var currentDecimals = rawDecimals
+
     if (desiredDecimals >= currentDecimals) {
         // nothing to round
         return Pair(currentMantissa, currentDecimals)
@@ -35,7 +40,7 @@ internal fun roundWithMode(currentMantissa: Long, currentDecimals: Int, desiredD
     }
     println("\nold: mantissa:$currentMantissa, currentDecimals:$currentDecimals, desiredDecimals:$desiredDecimals, mode:$roundingMode")
     val wholeRoundingDistance: Int = currentDecimals - desiredDecimals
-    if (wholeRoundingDistance > 17) return Pair(0, 0) // more than mantissa width, nothing will be left
+    if (wholeRoundingDistance > Decimal.MAX_LONG_SIGNIFICANTS) return Pair(0, 0) // more than mantissa width, nothing will be left
 
     val upperRoundingDistance: Int = if (desiredDecimals >= 0) {0} else {0 - desiredDecimals}
      val (mult, bias)  = getRoundingModeSpecificCalculation(roundingMode, currentMantissa >=0)
