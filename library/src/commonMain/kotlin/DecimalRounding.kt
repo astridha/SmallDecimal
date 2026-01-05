@@ -99,7 +99,7 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals:
         println("Ups!")
         if (shallThrowOnError) throw ArithmeticException("ARITHMETIC OVERFLOW: \"Value won't fit into Decimal\"")
         newMantissa = 0L
-        newDecimals = ArithmeticErrors.OVERFLOW.ordinal
+        newDecimals = ArithmeticErrors.OTHER_OVERFLOW.ordinal
     }
 
     return Pair(newMantissa, if (newMantissa == 0L) 0; else newDecimals)

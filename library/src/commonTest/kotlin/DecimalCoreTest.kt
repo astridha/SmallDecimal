@@ -240,8 +240,8 @@ class DecimalCoreTest {
             "123456.12345678901235",
             Decimal("123456.1234567890123456").toRawDecimalString(),
             "stringConstructor: \"123456.1234567890123456\", with rounding to 15 dplc"
-        ) */
-
+        )
+        */
     }
 
     @Test fun toPlainStringTests() {

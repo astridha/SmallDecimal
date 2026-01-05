@@ -27,7 +27,14 @@ public open class Decimal : Number, Comparable<Decimal> {
     internal enum class ArithmeticErrors { // max 15, for 4 Byte decimals field when mantissa == 0!
         OK,
         NOT_A_NUMBER,
-        OVERFLOW,
+        PARSING_OVERFLOW,
+        ADD_OVERFLOW,
+        SUBTRACT_OVERFLOW,
+        MULTIPLY_OVERFLOW,
+        DIVIDE_OVERFLOW,
+        INC_OVERFLOW,
+        DEC_OVERFLOW,
+        OTHER_OVERFLOW,
         DIVISION_BY_0,
         ROUNDING_FAILED
 
@@ -43,7 +50,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     // see also the invoke expressions in Companion object, for all constructors based on integer types!
 
     public constructor (rawNumberString: String) { // oder ecpliziter RoundingMode?
-        val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, false)
+        val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, autoDecimalPlaces, false)
         if (decimalPair != null) {
             if (!Decimal.isDecimalError(decimalPair.first, decimalPair.second)) {
                 val (roundedMantissa, roundedDecimals) = roundWithMode(
@@ -81,7 +88,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         if ((mantissa == 0L) and (decimals != 0) && shallThrowOnError) {
             when (decimals) {
                 ArithmeticErrors.NOT_A_NUMBER.ordinal -> throw NumberFormatException("INVALID NUMBER FORMAT")
-                ArithmeticErrors.OVERFLOW.ordinal -> throw ArithmeticException("ARITHMETIC OVERFLOW")
+                ArithmeticErrors.OTHER_OVERFLOW.ordinal -> throw ArithmeticException("ARITHMETIC OVERFLOW")
                 ArithmeticErrors.DIVISION_BY_0.ordinal -> throw ArithmeticException("DIVISION BY 0")
                 ArithmeticErrors.ROUNDING_FAILED.ordinal -> throw ArithmeticException("ROUNDING FAILED")
             }
@@ -112,7 +119,7 @@ public open class Decimal : Number, Comparable<Decimal> {
             if ((abs(mantissa) > MAX_VALUE) or (decimals > MAX_DECIMAL_PLACES)) {
                 if (shallThrowOnError) throw ArithmeticException("DECIMAL OVERFLOW: mantissa $mantissa with $decimals decimals")
                 mantissa = 0L
-                decimals = ArithmeticErrors.OVERFLOW.ordinal
+                decimals = ArithmeticErrors.OTHER_OVERFLOW.ordinal
             }
         }
 
@@ -222,11 +229,12 @@ public open class Decimal : Number, Comparable<Decimal> {
         if (equalizedThisMantissa.isNegative() == equalizedOtherMantissa.isNegative() ) {
         //if (thisMantissa > 0 ) { // HACK!!!
             println("!")
+            // a single value moght overflow
             // addition might overflow!
             var space: Long = MAX_VALUE - abs(equalizedThisMantissa)
             if (space <= equalizedOtherMantissa) {
                 if (shallThrowOnError) throw ArithmeticException("OVERFLOW on addition: $this + $other")
-                return Decimal(0, ArithmeticErrors.OVERFLOW.ordinal, true)
+                return Decimal(0, ArithmeticErrors.ADD_OVERFLOW.ordinal, true)
             }
         } else {
             // addition cannot overflow
@@ -280,7 +288,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         val resultDecimals = thisDecimals + otherDecimals
         if (resultMantissa/thisMantissa != otherMantissa) { // is this the best way to detect overflow?
             if (shallThrowOnError) throw ArithmeticException("Multiplication Overflow: $this * $other")
-            return Decimal(0L, ArithmeticErrors.OVERFLOW.ordinal, true)
+            return Decimal(0L, ArithmeticErrors.MULTIPLY_OVERFLOW.ordinal, true)
         }
         val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals,autoDecimalPlaces, autoRoundingMode)
         return Decimal(roundedMantissa, roundedDecimals, true)
@@ -312,7 +320,7 @@ public open class Decimal : Number, Comparable<Decimal> {
             if ((otherMantissa * (thisMantissa / otherMantissa)) == thisMantissa) break // rest 0, done
             if (abs(thisMantissa) > (Long.MAX_VALUE/10)) {
                 //println("Ups, OVERFLOW on division: $this / $other\"")
-                // would otherwise overflow
+                // would otherwise overflow (this is ok)
                 break
             }
             thisMantissa *=10; thisDecimals++
@@ -578,7 +586,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         public operator fun invoke(input:ULong): Decimal = Decimal(input.toLong(),0, true)
 
         internal fun mkDecimalOrNull(numberString: String): Decimal? {
-            val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, true)
+            val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, autoDecimalPlaces, true)
             return if (decimalPair != null) {
                 val (roundedMantissa, roundedDecimals) = roundWithMode(decimalPair.first, decimalPair.second, min(autoDecimalPlaces, MAX_DECIMAL_PLACES), autoRoundingMode)
                 Decimal(roundedMantissa, roundedDecimals, true)
@@ -611,7 +619,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
 
         // for automatic rounding
-        private var autoDecimalPlaces: Int = 15 /* 0 - 15 */
+        internal var autoDecimalPlaces: Int = 15 /* 0 - 15 */
         public fun setMaxDecimalPlaces(maxDecimalPlaces: Int) {
             // here: throw Exception if argument below 0?
             autoDecimalPlaces = if (maxDecimalPlaces < 0) {
