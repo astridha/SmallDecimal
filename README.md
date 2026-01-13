@@ -1,11 +1,11 @@
-# A Small Multiplatform Decimal Type
+# A Small Decimal Type for KMP Multiplatform
 
-### This Library offers a fixed-size Decimal class with small exponents and a predictive, smaller footprint than BigDecimal.  
+This Library offers a fixed-size **Decimal** class with small exponents and a predictive, smaller footprint than BigDecimal.  
 
 Made for Kotlin Multiplatform, no restriction to JVM.
 
 The **Decimal** class implements Number and Comparable interfaces, with a 64 Bit footprint.   
-It supports math operators **+**, **-**, <b>*</b>, **/**, and **%**, as well as **++** and **--**.
+It supports math binary operators **+**, **-**, <b>*</b>, **/**, and **%**, as well as unary operators **+**, **-**, **++**, and **--**.
 
 
 ## Characteristics   

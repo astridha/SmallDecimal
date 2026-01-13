@@ -52,7 +52,6 @@ private fun IsMantissaStringWillOverflow(mantissaString: String, decimals: Int, 
  }
 
 
-@Throws(NumberFormatException::class, ArithmeticException::class)
 internal fun mkDecimalParseOrNull (rawNumberString: String, desiredDecimalPlaces: Int = Decimal.autoDecimalPlaces, orNull: Boolean) : Pair <Long, Int>? {
     val cleanedNumberString = rawNumberString.replace("_","").replace(" ","")
 

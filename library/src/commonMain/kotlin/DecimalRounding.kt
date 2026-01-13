@@ -4,9 +4,12 @@ import io.github.astridha.smalldecimal.Decimal.Error
 import io.github.astridha.smalldecimal.Decimal.Companion.MAX_MANTISSA_VALUE
 import kotlin.math.abs
 
-internal fun getPower10(exponent: Int) : Long { // only for between 0 and 16!!!
+internal fun getPower10(exponent: Int) : Long { // only for between 0 and 18!!!
     var power: Long = 1
     if (exponent < 0) return 0 // solve somehow else, but generally shouldn't happen
+    if (exponent > (Decimal.MAX_LONG_SIGNIFICANTS-1)) {
+        Decimal.generateErrorDecimal(Error.ROUNDING_FAILED, "Rounding Overflow")
+    }
     repeat (exponent) { power *= 10 }
     return power
 }
@@ -31,6 +34,7 @@ internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMo
 // but resulting decimal places must aim between 0 and 15, independent of autoprecision
 // and long rawMantissa must also be handled and be shortened if greater than MAX_DECIMAL_VALUE/MIN_DECIMAL_VALUE
 internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, desiredDecimals: Int, roundingMode: Decimal.RoundingMode): Pair<Long, Int> {
+    if (rawMantissa == 0L) return Pair(0,0)
     var currentMantissa = rawMantissa
     var currentDecimals = rawDecimals
     // truncate any empty decimal places (low-hanging fruits)

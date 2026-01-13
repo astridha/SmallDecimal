@@ -24,7 +24,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         UNNECESSARY
     }
 
-    public enum class Error { // max 14 Errors (plus None), for 4 Byte decimals field when mantissa == 0!
+    public enum class Error { // max 14 Errors (plus NO_ERROR), for 4 Byte decimals field when mantissa == 0!
         NO_ERROR,
         NOT_A_NUMBER,
         PARSING_OVERFLOW,
@@ -37,7 +37,10 @@ public open class Decimal : Number, Comparable<Decimal> {
         DEC_OVERFLOW,
         OTHER_OVERFLOW,
         DIVISION_BY_0,
+        POSITIVE_INFINITY,
+        NEGATIVE_INFINITY,
         ROUNDING_FAILED;
+        // only one ist left to 15!
 
         override fun toString(): String {
             return name.replace("_", " ")
@@ -45,8 +48,6 @@ public open class Decimal : Number, Comparable<Decimal> {
     }
 
     /***********************  Secondary Constructors  ************************/
-
-    // see also the invoke expressions in Companion object, for all constructors based on integer types!
 
     public constructor (rawNumberString: String) { // oder ecpliziter RoundingMode?
         val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, autoDecimalPlaces, false)
@@ -89,6 +90,9 @@ public open class Decimal : Number, Comparable<Decimal> {
             decimal64 = pack64(mantissa, 0)
         }
     }
+
+    // for all constructors based on other integer types see also the invoke expressions in Companion object!
+
     /**************************** Private Helper Methods  ********************************/
 
 
@@ -140,24 +144,28 @@ public open class Decimal : Number, Comparable<Decimal> {
     /*******************  Rounding functions  *********************************/
 
     public fun ceil() : Decimal  {
+        if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, 0, RoundingMode.CEILING)
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     public fun floor() : Decimal  {
+        if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, 0, RoundingMode.FLOOR)
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     public fun truncate() : Decimal  {
+        if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, 0, RoundingMode.DOWN)
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     public fun round() : Decimal  {
+        if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, 0, RoundingMode.HALF_EVEN)
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
@@ -165,6 +173,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
 
     public fun setScale(desiredDecimals: Int, rounding: RoundingMode = autoRoundingMode): Decimal {
+        if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val roundingDecimals = min(MAX_DECIMAL_PLACES, desiredDecimals)
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, roundingDecimals, rounding)
@@ -180,6 +189,7 @@ public open class Decimal : Number, Comparable<Decimal> {
     public operator fun unaryPlus() : Decimal = this // or: clone()?
 
     public operator fun unaryMinus() : Decimal {
+        if (isError()) return clone()
         var (mantissa, decimals) = unpack64()
         mantissa = (0L-mantissa)
         return Decimal(mantissa, decimals)
@@ -220,26 +230,27 @@ public open class Decimal : Number, Comparable<Decimal> {
     }
 
     /*********************  Arithmetic operator overloads  **************************/
-    internal data class EqualizedDecimals(val thism:Long, val thatm: Long, val deci: Int)
+    internal data class EqualizedDecimals(val thisMantissa:Long, val thatMantissa: Long, val commonDecimal: Int)
 
-    private fun equalizeDecimals(thism:Long, thisd: Int, thatm: Long, thatd: Int): EqualizedDecimals {
+    private fun equalizeDecimals(thisM:Long, thisD: Int, thatM: Long, thatD: Int): EqualizedDecimals {
+        // aligns both mantissas to a common decimal for further processing
         // error handling still missing!
-        var thismantissa = thism
-        var thisdecimals = thisd
-        var thatmantissa = thatm
-        var thatdecimals = thatd
+        var thisMantissa = thisM
+        var thisDecimals = thisD
+        var thatMantissa = thatM
+        var thatDecimals = thatD
 
         // error handling still missing!
-        while (thisdecimals < thatdecimals) {
-            thismantissa *= 10
-            thisdecimals++
+        while (thisDecimals < thatDecimals) {
+            thisMantissa *= 10
+            thisDecimals++
         }
-        while (thatdecimals < thisdecimals) {
-            thatmantissa *= 10
-            thatdecimals++
+        while (thatDecimals < thisDecimals) {
+            thatMantissa *= 10
+            thatDecimals++
         }
 
-        return EqualizedDecimals(thismantissa, thatmantissa, thisdecimals)
+        return EqualizedDecimals(thisMantissa, thatMantissa, thisDecimals)
     }
 
     private fun Long.isNegative() = (this.sign < 0)
@@ -250,7 +261,9 @@ public open class Decimal : Number, Comparable<Decimal> {
     public operator fun plus(other: Decimal) : Decimal {
         if (isError(this) or isError(other)) return clone()
         val (thisMantissa, thisDecimals) = unpack64()
+        if (thisMantissa == 0L) return other.clone()
         val (otherMantissa, otherDecimals) = other.unpack64()
+        if (otherMantissa == 0L) return clone()
         val (equalizedThisMantissa,equalizedOtherMantissa, equalizedDecimals) = equalizeDecimals(thisMantissa, thisDecimals, otherMantissa, otherDecimals)
         println("Addition: this: $equalizedThisMantissa other: $equalizedOtherMantissa, sum: ${equalizedThisMantissa + equalizedOtherMantissa}")
         if (equalizedThisMantissa.isNegative() == equalizedOtherMantissa.isNegative() ) {
@@ -281,8 +294,10 @@ public open class Decimal : Number, Comparable<Decimal> {
     public operator fun minus(other: Decimal) : Decimal {
         if (isError(this) or isError(other)) return clone()
         val (thisMantissa, thisDecimals) = unpack64()
+        if (thisMantissa == 0L) return other.clone()
         val (otherMantissa, otherDecimals) = other.unpack64()
-        val (equalizedThisMantissa, equalizedOtherMantissa, equalizedDecimals) = equalizeDecimals(
+        if (otherMantissa == 0L) return clone()
+         val (equalizedThisMantissa, equalizedOtherMantissa, equalizedDecimals) = equalizeDecimals(
             thisMantissa,
             thisDecimals,
             otherMantissa,
@@ -724,6 +739,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
         // better inline for a more clear stack trace?
         @Suppress("NOTHING_TO_INLINE")
+        @Throws(NumberFormatException::class, ArithmeticException::class)
         internal inline fun generateErrorCode(error: Error, info: String): Int {
             val errortext = "$error: $info"
             if (shallThrowOnError) throw if (error == Error.NOT_A_NUMBER) NumberFormatException(errortext) else ArithmeticException(errortext)
