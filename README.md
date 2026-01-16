@@ -99,19 +99,18 @@ round(): Decimal  // RoundingMode.HALF_EVEN
 
 --------
 
-### Import
+### Usage (not yet active!)
+
+Dependencies in build.gradle.kts:
 ``` kotlin
-import io.github.astridha.smalldecimal.*
+dependencies {
+// ...
+implementation("io.github.astridha:smalldecimal:0.5.0")
+}
 ```
 
-#### Usage (not yet active!)
-Use maven dependency:
-
-```xml
-<dependency>
-    <groupId>io.github.astridha</groupId>
-    <artifactId>smalldecimal</artifactId>
-    <version>1.0.0</version>
-</dependency>
+Import in source files:
+``` kotlin
+import io.github.astridha.smalldecimal.*
 ```
 
