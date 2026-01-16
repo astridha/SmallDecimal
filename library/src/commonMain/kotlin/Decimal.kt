@@ -347,18 +347,27 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     public operator fun times(other: Decimal) : Decimal {
         if (isError(this) or isError(other)) return clone()
-        val (thisMantissa, thisDecimals) = unpack64()
-        val (otherMantissa, otherDecimals) = other.unpack64()
+        var (thisMantissa, thisDecimals) = unpack64()
+        var (otherMantissa, otherDecimals) = other.unpack64()
         println("Multiplication: this: $thisMantissa other: $otherMantissa, product: ${thisMantissa * otherMantissa}")
 
         // 0, no rounding needed
         if ((thisMantissa == 0L) || (otherMantissa == 0L)) return Decimal(0,0)
 
+        // temporary compression may help avoid overflow in some cases
+        while ((thisMantissa % 10) == 0L) { thisMantissa /= 10; thisDecimals --  }
+        while ((otherMantissa % 10) == 0L) { otherMantissa /= 10; otherDecimals --  }
+
        if (willOverflowLong(thisMantissa, otherMantissa)) {
            return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other result does not fit into Decimal")
         }
-        val resultMantissa = thisMantissa * otherMantissa
-        val resultDecimals = thisDecimals + otherDecimals
+        var resultMantissa = thisMantissa * otherMantissa
+        var resultDecimals = thisDecimals + otherDecimals
+        if (resultDecimals < 0) {
+            val pw10 = getPower10(0-resultDecimals)
+            resultMantissa *= pw10
+            resultDecimals = 0
+        }
         if (willOverflowMantissa(resultMantissa, resultDecimals)) {
             return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this * $other = ${toRawString(resultMantissa, resultDecimals)} result does not fit into Decimal")
         }
@@ -417,9 +426,9 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     /***** operator rem (%), but what about modulo/mod ? *****/
 
-    private fun wholeDivision(other: Decimal) : Decimal {
+    private fun integerDivision(other: Decimal) : Decimal {
         var (thisMantissa, thisDecimals) = unpack64()
-        var (otherMantissa, otherDecimals) = other.unpack64()
+        val (otherMantissa, otherDecimals) = other.unpack64()
         if (otherMantissa == 0L) {
             return generateErrorDecimal(Error.DIVISION_BY_0, "$this is divided by 0")
         }
@@ -435,7 +444,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     public operator fun rem(other:Decimal) : Decimal {
         if (isError(this) or isError(other)) return clone()
-        val result = (this.wholeDivision(other))
+        val result = (this.integerDivision(other))
         println("Remainder: this: $this, other: $other, result: ${(this - (other * result))}")
         // rounding???
         return (this - (other * result))

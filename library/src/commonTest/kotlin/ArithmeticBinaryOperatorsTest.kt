@@ -226,6 +226,9 @@ class ArithmeticBinaryOperatorsTest {
             ((-5).Dc % (-3).Dc).toString(),
             "operator ((-5).Dc % (-3).Dc)"
         )
+    }
+
+    @Test fun opModTests() {
 
         assertEquals(
             "3",
@@ -253,7 +256,7 @@ class ArithmeticBinaryOperatorsTest {
             ((-5).Dc mod (-3).Dc).toString(),
             "operator ((-5).Dc mod (-3).Dc)"
         )
-
-
     }
+
+
 }
