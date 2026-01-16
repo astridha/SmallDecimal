@@ -1,21 +1,15 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    // alias(libs.plugins.kotlinMultiplatform)
     kotlin("multiplatform") version "2.3.0"
-    // id("com.android.library")
     alias(libs.plugins.android.kotlin.multiplatform.library)
-
-    //alias(libs.plugins.vanniktech.mavenPublish)
     id("com.vanniktech.maven.publish") version "0.35.0"
-    // id("org.jetbrains.kotlin.kapt")
-
     id("maven-publish")
 }
 
 group = "io.github.astridha"
 // artifact="smalldecimal"
-version = "0.5.0"
+version = "0.6.0"
 
 
 kotlin {
@@ -36,20 +30,7 @@ kotlin {
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
         }
-/*
-        defaultConfig {
-            minSdk = 31
-            aarMetadata {
-                minCompileSdk = 29
-            }
-            //targetSdk = 34
-            //versionCode = 1
-            //versionName = "0.5"
 
-            //testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        }
-
- */
         compilerOptions {
             jvmTarget.set(
                 JvmTarget.JVM_11
