@@ -3,13 +3,13 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     kotlin("multiplatform") version "2.3.0"
     alias(libs.plugins.android.kotlin.multiplatform.library)
-    id("com.vanniktech.maven.publish") version "0.35.0"
+    id("com.vanniktech.maven.publish") version "0.36.0"
     id("maven-publish")
 }
 
 group = "io.github.astridha"
 // artifact="smalldecimal"
-version = "0.6.0"
+version = "0.7.0"
 
 
 kotlin {

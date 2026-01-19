@@ -1,5 +1,6 @@
 package io.github.astridha.smalldecimal
 
+import io.github.astridha.smalldecimal.Decimal.Companion.MAX_DECIMAL_SIGNIFICANTS
 import io.github.astridha.smalldecimal.Decimal.Companion.MAX_MANTISSA_VALUE
 import io.github.astridha.smalldecimal.Decimal.Companion.autoDecimalPlaces
 import io.github.astridha.smalldecimal.Decimal.Companion.autoRoundingMode
@@ -134,7 +135,7 @@ internal class DecimalArithmetics {
             return false
         }
 
-        public fun arithmeticTimes(
+        internal fun arithmeticTimes(
             thisD: Decimal,
             other: Decimal,
             roundToPlaces: Int = Decimal.autoDecimalPlaces,
@@ -171,15 +172,87 @@ internal class DecimalArithmetics {
 
         /********************************************** div (/) ****************************************/
 
+        internal fun arithmeticDiv(
+            thisD: Decimal,
+            other: Decimal,
+            roundToPlaces: Int = Decimal.autoDecimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+        ) : Decimal {
+            if (isError(thisD) or isError(other)) return thisD.clone()
+            var (thisMantissa, thisDecimals) = thisD.unpack64()
+            val (otherMantissa, otherDecimals) = other.unpack64()
+            println("Division: this: $thisMantissa other: $otherMantissa, result: ${if (otherMantissa==0L) "Error" else (thisMantissa / otherMantissa)}")
+            if (otherMantissa == 0L) {
+                return generateErrorDecimal(Decimal.Error.DIVISION_BY_0, "$this is divided by 0")
+            }
+            // manual division
+            while ((thisDecimals - otherDecimals) < MAX_DECIMAL_SIGNIFICANTS) {
+                if ((otherMantissa * (thisMantissa / otherMantissa)) == thisMantissa) break // rest == 0, done
+                if (abs(thisMantissa) > (Long.MAX_VALUE/10)) {
+                    // would otherwise overflow (but this is ok), stop now
+                    break
+                }
+                thisMantissa *=10; thisDecimals++
+            }
+            val resultMantissa = (thisMantissa / otherMantissa)
+            val resultDecimals = (thisDecimals - otherDecimals)
+
+            // rounding
+            val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals, roundToPlaces, roundingMode)
+            return Decimal(roundedMantissa, roundedDecimals)
+        }
 
 
 
         /********************************************** rem (%) ****************************************/
 
+        private fun integerDivision(thisD: Decimal, other: Decimal) : Decimal {
+            var (thisMantissa, thisDecimals) = thisD.unpack64()
+            val (otherMantissa, otherDecimals) = other.unpack64()
+            if (otherMantissa == 0L) {
+                return generateErrorDecimal(Decimal.Error.DIVISION_BY_0, "$this is divided by 0")
+            }
+            while (abs(thisMantissa) < abs(otherMantissa)){
+                thisMantissa *=10; thisDecimals++
+            }
+            val resultMantissa = (thisMantissa / otherMantissa)
+            val resultDecimals = (thisDecimals - otherDecimals)
+            // rounding??? no rounding.
+            return Decimal(resultMantissa, resultDecimals)
+        }
+
+
+        internal fun arithmeticRem(
+            thisD: Decimal,
+            other: Decimal,
+            roundToPlaces: Int = Decimal.autoDecimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+        ) : Decimal {
+            if (isError(thisD) or isError(other)) return thisD.clone()
+            val result = (integerDivision(thisD, other))
+            println("Remainder: this: $thisD, other: $other, result: ${(thisD - (other * result))}")
+            // rounding???
+            return (thisD - (other * result))
+        }
 
 
 
         /********************************************** mod (mod) ****************************************/
+
+        internal fun arithmeticMod(
+            thisD: Decimal,
+            other: Decimal,
+            roundToPlaces: Int = Decimal.autoDecimalPlaces,
+            roundingMode: Decimal.RoundingMode = Decimal.autoRoundingMode
+        ) : Decimal {
+            if (isError(thisD) or isError(other)) return thisD.clone()
+            val quotient = (thisD / other)
+            val flooredQuotient = floor(quotient)
+            println("Modulo: a: $this, m: $other, quotient: $quotient, flquotient: $flooredQuotient,  m*flquotient: ${other * flooredQuotient},  a-(m*flquotient): ${(thisD - (other * flooredQuotient))}")
+            // rounding???
+            return (thisD - (other * flooredQuotient))
+        }
+
 
     }
 }
