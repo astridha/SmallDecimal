@@ -534,8 +534,8 @@ public open class Decimal : Number, Comparable<Decimal> {
         var decimalString = toRawString(mantissa, decimals)
 
         // only for display!: complete minimum decimal places with "0"
-        if (autoMinDisplayDecimals > 0) {
-            val missingPlaces = autoMinDisplayDecimals - decimals
+        if (autoDisplayFormat.minDecimalPlaces > 0) {
+            val missingPlaces = autoDisplayFormat.minDecimalPlaces - decimals
             if (decimals == 0) decimalString += '.'
             if (missingPlaces > 0) decimalString += ("0".repeat(missingPlaces))
         }
@@ -562,13 +562,17 @@ public open class Decimal : Number, Comparable<Decimal> {
         return prefix+decimalString+'E'+adjustedExp.toString(10)
     }
 
-    public fun toFormattedString(thousandsDelimiter: Char = ',', decimalDelimiter: Char = '.', minDecimalPlaces: Int = autoMinDisplayDecimals) : String {
-        if (isError()) return getError().toString()
+    public fun toFormattedString() : String {
+        return toFormattedString(autoDisplayFormat)
+    }
+    public fun toFormattedString(displayFormat: DisplayFormat) : String {
+            if (isError()) return getError().toString()
         // inserts thousands delimiters between groups of 3 digits dynamically, and adds minimum of decimal places
-        // i.e., needs no formatting string and supports no overall minimum width
-        require (thousandsDelimiter != decimalDelimiter) {"Thousands separator and decimal separator must not be identical"}
-        val thousandsString = thousandsDelimiter.toString()
-        val decimalsString = decimalDelimiter.toString()
+        // i.e., needs no formatting string and supports no overall minimum width; but no India lakh/crore format
+        val groupingChar = displayFormat.groupingSeparator
+        val groupingSeparatorString = if (groupingChar != null) groupingChar.toString(); else ""
+        val decimalsSeparatorString = displayFormat.decimalSeparator.toString()
+        val minDecimalPlaces = displayFormat.minDecimalPlaces
         var rawString = this.toString()
         var integerPart: String
         var decimalPart: String
@@ -583,12 +587,12 @@ public open class Decimal : Number, Comparable<Decimal> {
 
         rawString = integerPart.reversed()
             .chunked(3)
-            .joinToString(thousandsString)
+            .joinToString(groupingSeparatorString)
             .reversed()
         if (decimalPosition >= 0) {
           rawString = buildString {
               append(rawString)
-              append(decimalsString)
+              append(decimalsSeparatorString)
               append(decimalPart)
           }
         }
@@ -596,12 +600,36 @@ public open class Decimal : Number, Comparable<Decimal> {
         if (minDecimalPlaces > 0) {
             val decimals = decimalPart.length
             val  missingPlaces = minDecimalPlaces - decimals
-            if (decimals <= 0) rawString += decimalDelimiter
+            if (decimals <= 0) rawString += decimalsSeparatorString
             if (missingPlaces > 0) rawString += ("0".repeat(missingPlaces))
         }
 
         return rawString
     }
+
+
+    // @JvmRecord
+    public data class RoundingConfig(val decimalPlaces: Int = MAX_DECIMAL_PLACES, val roundingMode: RoundingMode = RoundingMode.HALF_UP) {
+        public constructor (decimalPlaces: Int): this(decimalPlaces, autoRoundingConfig.roundingMode)
+        init {
+            require(decimalPlaces >= (0-MAX_DECIMAL_PLACES)) { "decimal places must be greater or equal -$MAX_DECIMAL_PLACES" }
+            require(decimalPlaces <= MAX_DECIMAL_PLACES) { "decimal places must not be be greater than $MAX_DECIMAL_PLACES, is: $decimalPlaces" }
+        }
+    }
+
+    // @JvmRecord
+    public data class DisplayFormat(val groupingSeparator: Char? = null, val decimalSeparator : Char = '.', val minDecimalPlaces: Int = 0) {
+        init {
+            if (groupingSeparator != null) {
+                require((groupingSeparator != decimalSeparator)) { "Grouping separator and decimal separator may not be equal '$groupingSeparator'" }
+            }
+            //require((decimalSeparator != '.')) { "No dot as decimalSeparator, '$decimalSeparator'" }
+            require(minDecimalPlaces >= 0) { "decimal places must be greater or equal 0" }
+            require(minDecimalPlaces <= MAX_LONG_SIGNIFICANTS) { "decimal places must not be be greater than $MAX_LONG_SIGNIFICANTS), is: $minDecimalPlaces" }
+        }
+    }
+
+
 
 
     /***********  Comparable interface, and equality operators  *************/
@@ -688,25 +716,6 @@ public open class Decimal : Number, Comparable<Decimal> {
         }
         public fun getThrowOnErrors(): Boolean = shallThrowOnError
 
-        // @JvmRecord
-        public data class RoundingConfig(val decimalPlaces: Int = MAX_DECIMAL_PLACES, val roundingMode: RoundingMode = RoundingMode.HALF_UP) {
-            public constructor (decimalPlaces: Int): this(decimalPlaces, autoRoundingConfig.roundingMode)
-            init {
-                require(decimalPlaces >= 0) { "decimal places must be greater or equal 0" }
-                require(decimalPlaces <= MAX_DECIMAL_PLACES) { "decimal places must not be be greater than $MAX_DECIMAL_PLACES, is: $decimalPlaces" }
-            }
-        }
-
-        // @JvmRecord
-        public data class DisplayFormat(val groupingSeparator: Char? = null, val decimalSeparator : Char = '.', val minDecimalPlaces: Int = 0) {
-            init {
-                require(groupingSeparator != decimalSeparator) { "Grouping separator and decimal separator may not be equal '$groupingSeparator'" }
-                require(minDecimalPlaces >= 0) { "decimal places must be greater or equal 0" }
-                require(minDecimalPlaces <= MAX_LONG_SIGNIFICANTS) { "decimal places must not be be greater than $MAX_LONG_SIGNIFICANTS), is: $minDecimalPlaces" }
-            }
-        }
-
-
         internal var autoRoundingConfig: RoundingConfig = RoundingConfig()
         internal var autoDisplayFormat: DisplayFormat = DisplayFormat()
 
@@ -732,6 +741,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         public fun getMaxDecimalPlaces(): Int = autoRoundingConfig.decimalPlaces
 
         // private var autoFormatString: String = "#,###,###,##0.00"
+        // ??? important for India: lakh/crore system? otherwise toFormattedString() is sufficient
 
         public fun setRoundingMode(mode: RoundingMode) {
             setRoundingConfig(RoundingConfig(autoRoundingConfig.decimalPlaces, mode))
@@ -739,7 +749,7 @@ public open class Decimal : Number, Comparable<Decimal> {
 
         public fun getRoundingMode():RoundingMode = autoRoundingConfig.roundingMode
 
-
+        /*
         // only for toString()! Remove when support for numeric formatting is added?
         private var autoMinDisplayDecimals: Int = 0 /*  0 - max */
         public fun setMinDecimals(mind: Int) {
@@ -747,8 +757,9 @@ public open class Decimal : Number, Comparable<Decimal> {
             autoMinDisplayDecimals = if (mind < 0) 0; else mind
         }
         public fun getMinDecimals(): Int = autoMinDisplayDecimals
+        */
 
-        /***************************  Simple output routine   ***************************/
+        /***************************  Simple output core routine   ***************************/
 
         internal fun toRawString(mantissa: Long, decimals: Int) : String {
             if (mantissa == 0L) {

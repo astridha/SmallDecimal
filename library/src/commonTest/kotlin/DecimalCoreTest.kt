@@ -22,31 +22,31 @@ class DecimalCoreTest {
             (17.5).Dc.toString(),
             "Double.Dc Constructor: 17.5"
         )
-        Decimal.setMinDecimals(2)
+        Decimal.setDisplayFormat(Decimal.DisplayFormat(null,'.',2))
         assertEquals(
             "18.5001",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-        Decimal.setMinDecimals(0) // default
+         Decimal.setDisplayFormat(Decimal.DisplayFormat(null,'.',0))
         assertEquals(
             "18500",
             "18500.000".Dc.toString(),
             "String.Dc Constructor: 18500.000"
         )
-        Decimal.setMaxDecimalPlaces(2)
+         Decimal.setRoundingConfig(Decimal.RoundingConfig(2, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "18.5",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-        Decimal.setMaxDecimalPlaces(0)
+        Decimal.setRoundingConfig(Decimal.RoundingConfig(0, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "19",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-        Decimal.setMaxDecimalPlaces(15) // default
+         Decimal.setRoundingConfig(Decimal.RoundingConfig(15, Decimal.RoundingMode.HALF_UP))
     }
 
     @Test fun doubleConstructorTests() {

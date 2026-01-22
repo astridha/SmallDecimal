@@ -76,49 +76,72 @@ class DecimalOutputTests {
 
     @Test fun toFormattedStringTests() {
         assertEquals(
-            "1.000",
-            Decimal(1L).toFormattedString(thousandsDelimiter = ',', decimalDelimiter = '.', minDecimalPlaces = 3),
-            "toFormattedString: decim is fullstop (default)"
+            "1234567890",
+            Decimal(1234567890L).toFormattedString(),
+            "toFormattedString: default setting, Long"
         )
+        assertEquals(
+            "123456.789",
+            Decimal(123456.7890).toFormattedString(),
+            "toFormattedString: default setting, Double (with comma)"
+        )
+        var displayFormat = Decimal.DisplayFormat(null, '.',3)
+        assertEquals(
+            "1.000",
+            Decimal(1L).toFormattedString(displayFormat),
+            "toFormattedString: decimal is dot (default)"
+        )
+        displayFormat = Decimal.DisplayFormat(null, ',',3)
         assertEquals(
             "1,000",
-            Decimal(1L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
-            "toFormattedString: decim is comma"
+            Decimal(1L).toFormattedString(displayFormat),
+            "toFormattedString: decimal is comma"
         )
+        
         assertFailsWith(
             IllegalArgumentException::class,
-            "toFormattedString: identical thousands and decim are invalid",
-            {Decimal(1L).toFormattedString(thousandsDelimiter = ',', decimalDelimiter = ',', minDecimalPlaces = 3)}
+            "toFormattedString: identical thousands and decimal are invalid"
+        ) {
+            Decimal(1L).toFormattedString(Decimal.DisplayFormat('*', '*', 3))
+        }
+
+        displayFormat = Decimal.DisplayFormat('.', ',',0)
+        assertEquals(
+            "1.000.000",
+            Decimal(1000000L).toFormattedString(displayFormat),
+            "toFormattedString: toFormattedString: thousands is dot and decimal is comma (but no decimals)"
+        )
+        displayFormat = Decimal.DisplayFormat('.', ',',3)
+        assertEquals(
+            "1.000.000,000",
+            Decimal(1000000L).toFormattedString(displayFormat),
+            "toFormattedString: toFormattedString: thousands is dot and decimal is comma"
         )
         assertEquals(
             "1.000.000,000",
-            Decimal(1000000L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
-            "toFormattedString: toFormattedString: thousands is fullstop and decim is comma"
-        )
-        assertEquals(
-            "1.000.000,000",
-            Decimal(1000000L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
-            "toFormattedString: toFormattedString: thousands is fullstop and decim is comma"
+            Decimal(1000000L).toFormattedString(displayFormat),
+            "toFormattedString: toFormattedString: thousands is dot and decimal is comma"
         )
         assertEquals(
             "1.234.567,000",
-            Decimal(1234567L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
-            "toFormattedString: toFormattedString: thousands is fullstop and decim is comma"
+            Decimal(1234567L).toFormattedString(displayFormat),
+            "toFormattedString: toFormattedString: thousands is dot and decimal is comma"
         )
         assertEquals(
             "-1.234.567,000",
-            Decimal(-1234567L).toFormattedString(thousandsDelimiter = '.', decimalDelimiter = ',', minDecimalPlaces = 3),
-            "toFormattedString: toFormattedString: thousands is fullstop and decim is comma"
+            Decimal(-1234567L).toFormattedString(displayFormat),
+            "toFormattedString: toFormattedString: thousands is dot and decimal is comma"
         )
+        displayFormat = Decimal.DisplayFormat(':', ',',3)
         assertEquals(
             "1:234:567,1234567",
-            Decimal(1234567.1234567).toFormattedString(thousandsDelimiter = ':', decimalDelimiter = ',', minDecimalPlaces = 3),
-            "toFormattedString: toFormattedString: thousands is : and decim is comma"
+            Decimal(1234567.1234567).toFormattedString(displayFormat),
+            "toFormattedString: toFormattedString: thousands is : and decimal is comma"
         )
         assertEquals(
             "-1:234:567,000",
-            Decimal(-1234567).toFormattedString(thousandsDelimiter = ':', decimalDelimiter = ',', minDecimalPlaces = 3),
-            "toFormattedString: toFormattedString: thousands is : and decim is comma"
+            Decimal(-1234567).toFormattedString(displayFormat),
+            "toFormattedString: toFormattedString: thousands is : and decimal is comma"
         )
     }
 
