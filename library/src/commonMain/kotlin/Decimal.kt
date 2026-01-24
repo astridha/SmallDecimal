@@ -453,7 +453,10 @@ public open class Decimal : Number, Comparable<Decimal> {
 
     public val sign : Decimal
         get() {
-             return Decimal((decimal64 and MAX_DECIMAL_PLACES.toLong()).sign)
+            val (mantissa, _) = unpack64()
+            val sign = mantissa.sign
+            return Decimal(sign)
+             //return Decimal((decimal64 and MAX_DECIMAL_PLACES.toLong()).sign)
         }
 
     public val numDecimalPlaces : Int
