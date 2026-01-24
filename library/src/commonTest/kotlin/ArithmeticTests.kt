@@ -116,31 +116,31 @@ class ArithmeticTests {
     @Test fun arithmeticModTests() {
         assertEquals(
             "4.00001",
-            10.Dc.mod(5.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.UP)).toString(),
+            10.Dc.mod(5.99999.Dc, Decimal.RoundingConfig(15, Decimal.RoundingMode.UP)).toString(),
             "operator (10.Dc.mod 5.99999.Dc, 3, Decimal.RoundingMode.UP)"
         )
         assertEquals(
-            "4.00001",
+            "4",
             10.Dc.mod(5.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.DOWN)).toString(),
             "operator (10.Dc.mod 5.99999.Dc, 3, Decimal.RoundingMode.DOWN)"
         )
         assertEquals(
             "4.00001",
-            10.Dc.mod(5.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.HALF_EVEN)).toString(),
+            10.Dc.mod(5.99999.Dc, Decimal.RoundingConfig(10, Decimal.RoundingMode.HALF_EVEN)).toString(),
             "operator (10.Dc.mod 5.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
         )
         assertEquals(
             "0.0001",
-            10.Dc.mod(0.99999.Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.HALF_EVEN)).toString(),
+            10.Dc.mod(0.99999.Dc, Decimal.RoundingConfig(10, Decimal.RoundingMode.HALF_EVEN)).toString(),
             "operator (10.Dc.times 0.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
         )
         assertEquals(
-            "-0.99989",
+            "-1",
             10.Dc.mod((-0.99999).Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.HALF_EVEN)).toString(),
             "operator (10.Dc.mod -0.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
         )
         assertEquals(
-            "-0.99989",
+            "-0.999",
             10.Dc.mod((-0.99999).Dc, Decimal.RoundingConfig(3, Decimal.RoundingMode.DOWN)).toString(),
             "operator (10.Dc.mod -0.99999.Dc, 3, Decimal.RoundingMode.HALF_EVEN)"
         )

@@ -215,13 +215,10 @@ internal class DecimalArithmetics {
             }
             val resultMantissa = (thisMantissa / otherMantissa)
             val resultDecimals = (thisDecimals - otherDecimals)
-            // rounding
-            val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals, roundingConfig)
-
-            val result = Decimal(roundedMantissa, roundedDecimals)
+            val result = Decimal(resultMantissa, resultDecimals)
             println("Remainder: this: $thisD, other: $other, result: ${(thisD - (other * result))}")
-            // rounding???
-            return (thisD - (other * result))
+            // rounding
+            return (thisD - (other * result)).setScale(roundingConfig.decimalPlaces, roundingConfig.roundingMode)
         }
 
 
@@ -237,7 +234,8 @@ internal class DecimalArithmetics {
             // rounding is by floor
             val flooredQuotient = floor(quotient)
             println("Modulo: a: $this, m: $other, quotient: $quotient, floor: $flooredQuotient,  m*floor: ${other * flooredQuotient},  a-(m*floor): ${(thisD - (other * flooredQuotient))}")
-            return (thisD - (other * flooredQuotient))
+            // rounding again ???
+            return (thisD - (other * flooredQuotient)).setScale(roundingConfig.decimalPlaces, roundingConfig.roundingMode)
         }
 
 

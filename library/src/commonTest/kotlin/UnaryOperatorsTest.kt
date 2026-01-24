@@ -74,7 +74,55 @@ class UnaryOperatorsTest {
         )
 
     }
+    @Test fun numDecimalPlacesTests() {
+        val d = Decimal(-11)
+        assertEquals(
+            3,
+            Decimal(1.234).numDecimalPlaces,
+            "abs(-11.Dc)"
+        )
+        assertEquals(
+            5,
+            Decimal(1.23445).numDecimalPlaces,
+            "abs(-11.Dc)"
+        )
+        assertEquals(
+            0,
+            Decimal(1.234).round().numDecimalPlaces,
+            "abs(-11.Dc)"
+        )
+        assertEquals(
+            0,
+            Decimal(1).round(5).numDecimalPlaces,
+            "abs(-11.Dc)"
+        )
+
+    }
+
+    @Test fun signTests() {
+        val d = Decimal(-11)
+        assertEquals(
+            1.toDecimal(),
+            Decimal(1.234).sign,
+            "abs(-11.Dc)"
+        )
+        assertEquals(
+            1.2345.Dc,
+            Decimal(1.234).sign,
+            "abs(-11.Dc)"
+        )
+        assertEquals(
+            -1.toDecimal(),
+            Decimal(-4.5678).sign,
+            "abs(-11.Dc)"
+        )
+        assertEquals(
+            0.toDecimal(),
+            Decimal(1.0).sign,
+            "abs(-11.Dc)"
+        )
+    }
 
 
 
-}
+    }
