@@ -8,7 +8,7 @@ import kotlin.math.sign
 //import kotlin.reflect.jvm.jvmName
 
 
-public open class Decimal : Number, Comparable<Decimal> {
+public class Decimal : Number, Comparable<Decimal> {
 
     // 60bit long mantissa plus 4 Bit int exponent (decimal places):
     private var decimal64: Long = 0L
@@ -445,24 +445,15 @@ public open class Decimal : Number, Comparable<Decimal> {
         val (mantissa, decimals) = unpack64()
         return Decimal(abs(mantissa), decimals)
     }
-    public val absoluteValue: Decimal
-        get() {
-            return this.abs()
-        }
 
+    public val absoluteValue: Decimal
+        get() = abs()
 
     public val sign : Decimal
-        get() {
-            val (mantissa, _) = unpack64()
-            val sign = mantissa.sign
-            return Decimal(sign)
-             //return Decimal((decimal64 and MAX_DECIMAL_PLACES.toLong()).sign)
-        }
+        get() = Decimal(decimal64.sign)
 
     public val numDecimalPlaces : Int
-        get() {
-             return (decimal64 and MAX_DECIMAL_PLACES.toLong()).toInt()
-        }
+        get() = (decimal64 and MAX_DECIMAL_PLACES.toLong()).toInt()
 
 
     /**********************  Converting to Standard Numeric Types ***************************/
@@ -598,9 +589,7 @@ public open class Decimal : Number, Comparable<Decimal> {
             if (groupingSeparator != null) {
                 require((groupingSeparator != decimalSeparator)) { "Grouping separator and decimal separator may not be equal '$groupingSeparator'" }
             }
-            //require((decimalSeparator != '.')) { "No dot as decimalSeparator, '$decimalSeparator'" }
-            require(minDecimalPlaces >= 0) { "decimal places must be greater or equal 0" }
-            require(minDecimalPlaces <= MAX_LONG_SIGNIFICANTS) { "decimal places must not be be greater than $MAX_LONG_SIGNIFICANTS), is: $minDecimalPlaces" }
+            require(minDecimalPlaces >= 0) { "Decimal places must be greater or equal 0" }
         }
     }
 
@@ -674,6 +663,7 @@ public open class Decimal : Number, Comparable<Decimal> {
         public const val MAX_DECIMAL_SIGNIFICANTS: Int = 18
         public const val MAX_DECIMAL_MANTISSA_AS_STRING: String = "576460752303423487"
         public const val MAX_LONG_SIGNIFICANTS: Int = 19
+        public const val SAFE_LONG_SIGNIFICANTS: Int = MAX_LONG_SIGNIFICANTS - 1
         public const val MAX_LONG_VALUE_AS_STRING: String = "9223372036854775807"
 
         public val ONE: Decimal = Decimal(1,0)

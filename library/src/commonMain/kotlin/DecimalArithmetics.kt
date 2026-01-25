@@ -123,11 +123,11 @@ internal class DecimalArithmetics {
             return( (a < 0) && (b < 0) && (a < (Long.MAX_VALUE / b)))
         }
 
-        private fun willOverflowMantissa(mantissa: Long, decimals: Int): Boolean {
+        private fun willOverflowMantissa(mantissa: Long, decimals: Int, roundingConfig: Decimal.RoundingConfig): Boolean {
             // this assumes later rounding to autoRoundingConfig.decimalPlaces!
             // any tolerated overflow must be guaranteed to be removed later when being rounded away
-            if ((abs(mantissa) > (MAX_MANTISSA_VALUE*10)) && (decimals <= (autoRoundingConfig.decimalPlaces-2))) return true
-            if ((abs(mantissa) > MAX_MANTISSA_VALUE ) && (decimals <= (autoRoundingConfig.decimalPlaces-1))) return true
+            if ((abs(mantissa) > (MAX_MANTISSA_VALUE*10)) && (decimals <= (roundingConfig.decimalPlaces-2))) return true
+            if ((abs(mantissa) > MAX_MANTISSA_VALUE ) && (decimals <= (roundingConfig.decimalPlaces-1))) return true
             return false
         }
 
@@ -158,7 +158,7 @@ internal class DecimalArithmetics {
                 resultMantissa *= pw10
                 resultDecimals = 0
             }
-            if (willOverflowMantissa(resultMantissa, resultDecimals)) {
+            if (willOverflowMantissa(resultMantissa, resultDecimals, roundingConfig)) {
                 return generateErrorDecimal(Decimal.Error.MULTIPLY_OVERFLOW, "$this * $other = ${toRawString(resultMantissa, resultDecimals)} result does not fit into Decimal")
             }
             val (roundedMantissa, roundedDecimals) = roundWithMode(resultMantissa, resultDecimals,roundingConfig)
@@ -215,9 +215,10 @@ internal class DecimalArithmetics {
             }
             val resultMantissa = (thisMantissa / otherMantissa)
             val resultDecimals = (thisDecimals - otherDecimals)
+
+
             val result = Decimal(resultMantissa, resultDecimals)
             println("Remainder: this: $thisD, other: $other, result: ${(thisD - (other * result))}")
-            // rounding
             return (thisD - (other * result)).setScale(roundingConfig.decimalPlaces, roundingConfig.roundingMode)
         }
 
@@ -230,13 +231,12 @@ internal class DecimalArithmetics {
             roundingConfig: Decimal.RoundingConfig = autoRoundingConfig
         ) : Decimal {
             if (isError(thisD) or isError(other)) return thisD.clone()
-            val quotient = (thisD / other)
-            // rounding is by floor
-            val flooredQuotient = floor(quotient)
-            println("Modulo: a: $this, m: $other, quotient: $quotient, floor: $flooredQuotient,  m*floor: ${other * flooredQuotient},  a-(m*floor): ${(thisD - (other * flooredQuotient))}")
-            // rounding again ???
-            return (thisD - (other * flooredQuotient)).setScale(roundingConfig.decimalPlaces, roundingConfig.roundingMode)
-        }
+            val flooredQuotient = arithmeticDiv( thisD,other, Decimal.noRoundingConfig).floor()
+            val subtractor = arithmeticTimes(other, flooredQuotient, Decimal.noRoundingConfig)
+            val result = arithmeticMinus(thisD, subtractor, Decimal.noRoundingConfig)
+            println("Modulo: a: $thisD, m: $other, flooredquotient: $flooredQuotient,  m*floor: ${other * flooredQuotient}, subt: $subtractor,  a-(m*floor): ${(thisD - (other * flooredQuotient))}, result: $result")
+            return result.setScale(roundingConfig.decimalPlaces, roundingConfig.roundingMode)
+         }
 
 
     }
