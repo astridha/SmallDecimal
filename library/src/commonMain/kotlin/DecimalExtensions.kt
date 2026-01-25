@@ -8,6 +8,7 @@ public fun round(d: Decimal, toPlaces: Int) : Decimal = d.round(toPlaces)
 
 public fun ceil(d: Decimal) : Decimal = d.ceil()
 public fun ceil(d: Decimal, toPlaces: Int) : Decimal = d.ceil(toPlaces)
+
 public fun floor(d: Decimal) : Decimal = d.floor()
 public fun floor(d: Decimal, toPlaces: Int) : Decimal = d.floor(toPlaces)
 

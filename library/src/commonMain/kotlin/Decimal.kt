@@ -73,12 +73,13 @@ public class Decimal : Number, Comparable<Decimal> {
 
 
     @Throws(ArithmeticException::class)
-    public constructor (float: Float) : this(float.toString())
+    public constructor (float: Float, omitRounding: Boolean = false) : this(float.toString(), omitRounding)
+
     @Throws(ArithmeticException::class)
-    public constructor (double: Double) : this(double.toString())
+    public constructor (double: Double, omitRounding: Boolean = false) : this(double.toString(), omitRounding)
 
     public constructor (other: Decimal) {
-        decimal64 = other.decimal64
+        decimal64 = other.decimal64   // or: clone()? difference?
     }
 
     internal constructor (mantissa: Long, decimalPlaces: Int) {
@@ -529,10 +530,10 @@ public class Decimal : Number, Comparable<Decimal> {
     }
 
     public override fun toString() : String {
-        return toString(autoDisplayFormat)
+        return toString(autoLocalConfig)
     }
 
-    public fun toString(displayFormat: DisplayFormat) : String {
+    public fun toString(displayFormat: LocalConfig) : String {
             if (isError()) return getError().toString()
         // inserts thousands delimiters between groups of 3 digits dynamically, and adds minimum of decimal places
         // i.e., needs no formatting string and supports no overall minimum width; but no India lakh/crore format
@@ -584,7 +585,7 @@ public class Decimal : Number, Comparable<Decimal> {
     }
 
     // @JvmRecord
-    public data class DisplayFormat(val groupingSeparator: Char? = null, val decimalSeparator : Char = '.', val minDecimalPlaces: Int = 0) {
+    public data class LocalConfig(val groupingSeparator: Char? = null, val decimalSeparator : Char = '.', val minDecimalPlaces: Int = 0) {
         init {
             if (groupingSeparator != null) {
                 require((groupingSeparator != decimalSeparator)) { "Grouping separator and decimal separator may not be equal '$groupingSeparator'" }
@@ -644,11 +645,10 @@ public class Decimal : Number, Comparable<Decimal> {
         //public operator fun invoke(long:Long): Decimal = Decimal(long)
         public operator fun invoke(ulong:ULong): Decimal = Decimal(ulong.toLong())
 
-        internal fun mkDecimalOrNull(numberString: String, omitRounding: Boolean = false): Decimal? {
-            val roundingConfig = if (omitRounding) noRoundingConfig; else autoRoundingConfig
-            val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, roundingConfig, true)
+        internal fun mkDecimalOrNull(numberString: String): Decimal? {
+            val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, autoRoundingConfig, true)
             return if (decimalPair != null) {
-                val (roundedMantissa, roundedDecimals) = roundWithMode(decimalPair.first, decimalPair.second, roundingConfig)
+                val (roundedMantissa, roundedDecimals) = roundWithMode(decimalPair.first, decimalPair.second, autoRoundingConfig)
                 Decimal(roundedMantissa, roundedDecimals)
             } else {
                 null
@@ -684,7 +684,7 @@ public class Decimal : Number, Comparable<Decimal> {
 
         internal var autoRoundingConfig: RoundingConfig = RoundingConfig(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
         internal val noRoundingConfig: RoundingConfig = RoundingConfig(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
-        internal var autoDisplayFormat: DisplayFormat = DisplayFormat(null, '.',0)
+        internal var autoLocalConfig: LocalConfig = LocalConfig(null, '.',0)
 
         // for automatic rounding
         //internal var autoRoundingConfig.decimalPlaces: Int = MAX_DECIMAL_PLACES /* 0 - 15 */
@@ -698,8 +698,8 @@ public class Decimal : Number, Comparable<Decimal> {
             autoRoundingConfig = RoundingConfig(setD, roundingConfig.roundingMode)
         }
 
-        public fun setDisplayFormat(displayFormat: DisplayFormat) {
-            autoDisplayFormat = displayFormat
+        public fun setLocalConfig(localConfig: LocalConfig) {
+            autoLocalConfig = localConfig
         }
 
         public fun setMaxDecimalPlaces(maxDecimalPlaces: Int) {

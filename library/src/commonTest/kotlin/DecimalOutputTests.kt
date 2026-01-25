@@ -85,13 +85,13 @@ class DecimalOutputTests {
             Decimal(123456.7890).toString(),
             "toString:  default setting, Double (with comma)"
         )
-        var displayFormat = Decimal.DisplayFormat(null, '.',3)
+        var displayFormat = Decimal.LocalConfig(null, '.',3)
         assertEquals(
             "1.000",
             Decimal(1L).toString(displayFormat),
             "toString:  decimal is dot (default)"
         )
-        displayFormat = Decimal.DisplayFormat(null, ',',3)
+        displayFormat = Decimal.LocalConfig(null, ',',3)
         assertEquals(
             "1,000",
             Decimal(1L).toString(displayFormat),
@@ -102,16 +102,16 @@ class DecimalOutputTests {
             IllegalArgumentException::class,
             "toString:  identical thousands and decimal are invalid"
         ) {
-            Decimal(1L).toString(Decimal.DisplayFormat('*', '*', 3))
+            Decimal(1L).toString(Decimal.LocalConfig('*', '*', 3))
         }
 
-        displayFormat = Decimal.DisplayFormat('.', ',',0)
+        displayFormat = Decimal.LocalConfig('.', ',',0)
         assertEquals(
             "1.000.000",
             Decimal(1000000L).toString(displayFormat),
             "toString:  thousands is dot and decimal is comma (but no decimals)"
         )
-        displayFormat = Decimal.DisplayFormat('.', ',',3)
+        displayFormat = Decimal.LocalConfig('.', ',',3)
         assertEquals(
             "1.000.000,000",
             Decimal(1000000L).toString(displayFormat),
@@ -132,7 +132,7 @@ class DecimalOutputTests {
             Decimal(-1234567L).toString(displayFormat),
             "toString:  thousands is dot and decimal is comma"
         )
-        displayFormat = Decimal.DisplayFormat(':', ',',3)
+        displayFormat = Decimal.LocalConfig(':', ',',3)
         assertEquals(
             "1:234:567,1234567",
             Decimal(1234567.1234567).toString(displayFormat),

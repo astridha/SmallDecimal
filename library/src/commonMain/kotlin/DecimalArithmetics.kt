@@ -213,13 +213,13 @@ internal class DecimalArithmetics {
             while (abs(thisMantissa) < abs(otherMantissa)){
                 thisMantissa *=10; thisDecimals++
             }
-            val resultMantissa = (thisMantissa / otherMantissa)
-            val resultDecimals = (thisDecimals - otherDecimals)
-
-
-            val result = Decimal(resultMantissa, resultDecimals)
-            println("Remainder: this: $thisD, other: $other, result: ${(thisD - (other * result))}")
-            return (thisD - (other * result)).setScale(roundingConfig.decimalPlaces, roundingConfig.roundingMode)
+            val dividedMantissa = (thisMantissa / otherMantissa)
+            val dividedDecimals = (thisDecimals - otherDecimals)
+            val divided = Decimal(dividedMantissa, dividedDecimals)
+            val subtractor = arithmeticTimes(other, divided, Decimal.noRoundingConfig)
+            val result = arithmeticMinus(thisD, subtractor, Decimal.noRoundingConfig)
+            println("Remainder: this: $thisD, other: $other, result: ${(thisD - (other * divided))}")
+            return result.setScale(roundingConfig.decimalPlaces, roundingConfig.roundingMode)
         }
 
 
