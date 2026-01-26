@@ -39,14 +39,34 @@ Use arithmetical operators conveniently, like
 
 
 
-### Precision and display
+### Configuring the default decimal places and rounding modes
 
-#### setRoundingConfig (precision: Int, roundingMode: RoundingMode)
-sets the number of decimal places every Decimal will be rounded to automatically.  
+#### The class ```RoundingConfig``` contains details about desired decimal places and how to limit them
+The default (and maximum supported) number of decimal places is 15. This will not be reserved for decimal places, but might be reached quickly through various subsequent arithmetical calculations.  
+But as the width of the decimal's mantissa is limited to overall 17-18 digits, an overflow it imminent. Therefore, it is preferable to limit the share for decimal places that are really needed. E.g. for currencies this may be two digits.  
+The limiting is done by automatically round the calculated value back to the desired decimal places with each calculaton.
+
+``` kotlin
+public class RoundingConfig(decimalPlaces: Int, roundingMode: Decimal.RoundingMode)
+```
+This class the maximum decimal places that all **Decimal**s shall automatically be rounded to (if necessary), as well as the rounding mode that will be used to achieve this.  
+For the available rounding modes see below.
+
+``` RoundingConfig (2, Decimal.RoundingMode.HALF_UP)```  means that all Decimals will be rounded to two decimal places.  
+``` RoundingConfig (0, Decimal.RoundingMode.HALF_EVEN)```  means that only whole numbers will be generated, and will be rounded to the next even number.
+
+``` kotlin
+val roundingPreference: RoundingConfig = RoundingConfig(2,RoundingMode.HALF_EVEN)
+```
+
+
+#### Setting the automatic mode with ```setRoundingConfig (roundingConfig: RoundingConfig)```
+sets the way in which every Decimal will be rounded to automatically after each arithmetic calculation.  
+
 The supported range is from 0 to 15.   
 15 is the default value and the maximum supported precision.  
-**setRoundingConfig (2, HALF_UP)** means that all Decimals will be rounded to two decimal places.  
-**setRoundingConfig (0, HALF_EVEN)** means that only whole numbers will be generated, and rounded to the next even number.
+``` kotlin setRoundingConfig (2, HALF_UP)```  means that all Decimals will be rounded to two decimal places.  
+``` kotlin setRoundingConfig (0, HALF_EVEN)```  means that only whole numbers will be generated, and will be rounded to the next even number.
 
 #### setLocalConfig (groupingSeparator: Char?, decimalSeparator: Char, minDecimalPlaces: Int)
 Configures how the Decimal will be formatted to with  **toString()**.
@@ -54,8 +74,9 @@ Sets grouping separator and decimal separator, and the number of minimum decimal
 The supported range is from 0 to any positive value.   
 0 is the default value and means there are no printed mandatory decimal places.  
 If this setting sets more decimal places than the Decimal value has, the remaining decimal places are filled with "0"s.  
-**setLocalConfig ('.', '.', 2)** means that at least two decimal places will be shown.  
-**setLocalConfig (null, '.', 0)** means that only necessary decimal places will be shown.
+If there are more decimal places than ```minDecimalPlaces```, they are all shown
+``` kotlin setLocalConfig (',', '.', 2)```  means that the grouping separator is a comma, decimal point is a dot, and at least two decimal places will be shown.  
+``` kotlin setLocalConfig (null, '.', 0)```  means that no grouping separator is used, the decimal point is a comma, and only necessary decimal places will be shown.
 
 
 ### Rounding
