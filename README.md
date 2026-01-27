@@ -1,6 +1,6 @@
 # A Small Decimal Type for KMP Multiplatform
 
-This Library offers a fixed-size **Decimal** class with small exponents and a predictive footprint.  
+This library offers a fixed-size **Decimal** class with small exponents and a predictive footprint.  
 
 Made for Kotlin Multiplatform.
 
