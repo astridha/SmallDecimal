@@ -10,7 +10,7 @@ import kotlin.math.sign
 
 public class Decimal : Number, Comparable<Decimal> {
 
-    // 60bit long mantissa plus 4 Bit int exponent (decimal places):
+    // 60-bit long mantissa plus 4-Bit long exponent (decimal places):
     private var decimal64: Long = 0L
 
 
@@ -96,9 +96,9 @@ public class Decimal : Number, Comparable<Decimal> {
             decimal64 = pack64(long, 0)
         }
     }
-    // Secondary contructors cannot call other secondary contructors.
+    // Secondary constructors cannot call other secondary constructors.
     // So constructors based on other integer types cannot simply call constructor(int.toLong())
-    // Therefore, see the work-around invoke expressions in Companion object!
+    // Therefore, see the work-around invoke expressions in the Companion object!
 
     /**************************** Packing / Unpacking Helper Methods  ********************************/
 
@@ -516,12 +516,10 @@ public class Decimal : Number, Comparable<Decimal> {
         if (mantissa == 0L) return "0E0"
         var decimalString: String
         val prefix : String
-        if (mantissa < 0) {
-            decimalString = (0L - mantissa).toString(10); prefix = "-"
-        }
-        else {
-            decimalString = mantissa.toString(10); prefix = ""
-        }
+         when {
+             (mantissa < 0) -> { decimalString = (0L - mantissa).toString(10); prefix = "-" }
+             else ->           { decimalString = mantissa.toString(10); prefix = ""  }
+         }
 
         val adjustedExp = (decimalString.count()-1) - decimals
         if (decimalString.count() > 1) decimalString = decimalString.take(1) + '.' + decimalString.substring(1).trimEnd('0')
@@ -535,7 +533,7 @@ public class Decimal : Number, Comparable<Decimal> {
 
     public fun toString(displayFormat: LocalConfig) : String {
             if (isError()) return getError().toString()
-        // inserts thousands delimiters between groups of 3 digits dynamically, and adds minimum of decimal places
+        // inserts grouping delimiters between groups of 3 digits dynamically and adds the minimum of decimal places
         // i.e., needs no formatting string and supports no overall minimum width; but no India lakh/crore format
         val groupingSeparatorString = displayFormat.groupingSeparator?.toString() ?: ""
         val decimalsSeparatorString = displayFormat.decimalSeparator.toString()
@@ -716,15 +714,6 @@ public class Decimal : Number, Comparable<Decimal> {
 
         public fun getRoundingMode():RoundingMode = autoRoundingConfig.roundingMode
 
-        /*
-        // only for toString()! Remove when support for numeric formatting is added?
-        private var autoMinDisplayDecimals: Int = 0 /*  0 - max */
-        public fun setMinDecimals(mind: Int) {
-            require(mind >= 0) { "minDecimals must be non-negative, was $mind" }
-            autoMinDisplayDecimals = if (mind < 0) 0; else mind
-        }
-        public fun getMinDecimals(): Int = autoMinDisplayDecimals
-        */
 
         /***************************  Simple output core routine   ***************************/
 
@@ -735,11 +724,9 @@ public class Decimal : Number, Comparable<Decimal> {
             }
             var decimalString: String
             val prefix : String
-            if (mantissa < 0) {
-                decimalString = (0L - mantissa).toString(10); prefix = "-"
-            }
-            else {
-                decimalString = mantissa.toString(10); prefix = ""
+            when {
+                (mantissa < 0) -> { decimalString = (0L - mantissa).toString(10); prefix = "-" }
+                else ->           { decimalString = mantissa.toString(10); prefix = "" }
             }
 
             if (decimals > 0) { // decimal digits exist, insert a dot
@@ -792,13 +779,13 @@ public class Decimal : Number, Comparable<Decimal> {
 
 
 
-    }  // end of companion object
+    }  // end of the companion object
 
 
     /**************************** Error Handling  ********************************/
 
     // If shallThrowOnError is false, errors are embedded into decimal places instead, while mantissa is 0
-    // which on other words means that decimal64 is greater 0, but lower the 16 (0x10)
+    // in other words, this means that decimal64 is greater 0, but lower than 16 (0x10)
     // this allows for only up to 14 error conditions, so better be thrifty with them
 
     public fun isError(): Boolean {
