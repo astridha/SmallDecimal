@@ -52,7 +52,7 @@ public class Decimal : Number, Comparable<Decimal> {
 
     @Throws(NumberFormatException::class, ArithmeticException::class)
     public constructor (rawNumberString: String, omitRounding: Boolean = false) { // or explicit RoundingMode?
-        val roundingConfig = if (omitRounding) noRoundingConfig; else autoRoundingConfig
+        val roundingConfig = if (omitRounding) noRounding; else autoRounding
         val parsedDecimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(rawNumberString, roundingConfig, false)
         if (parsedDecimalPair != null) {
             if (!isError(parsedDecimalPair.first, parsedDecimalPair.second)) {
@@ -149,37 +149,37 @@ public class Decimal : Number, Comparable<Decimal> {
     public fun ceil(desiredDecimals: Int = 0) : Decimal  {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
-        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, RoundingConfig(desiredDecimals, RoundingMode.CEILING))
+        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(desiredDecimals, RoundingMode.CEILING))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     public fun floor(desiredDecimals: Int = 0) : Decimal  {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
-        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, RoundingConfig(desiredDecimals, RoundingMode.FLOOR))
+        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(desiredDecimals, RoundingMode.FLOOR))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     public fun truncate(desiredDecimals: Int = 0) : Decimal  {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
-        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, RoundingConfig(desiredDecimals, RoundingMode.DOWN))
+        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(desiredDecimals, RoundingMode.DOWN))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
     public fun round(desiredDecimals: Int = 0) : Decimal  {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
-        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, RoundingConfig(desiredDecimals, RoundingMode.HALF_EVEN))
+        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(desiredDecimals, RoundingMode.HALF_EVEN))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
 
-    public fun setScale(desiredDecimals: Int = autoRoundingConfig.decimalPlaces, roundingMode: RoundingMode = autoRoundingConfig.roundingMode): Decimal {
+    public fun setScale(desiredDecimals: Int = autoRounding.decimalPlaces, roundingMode: RoundingMode = autoRounding.roundingMode): Decimal {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val roundingDecimals = min(MAX_DECIMAL_PLACES, desiredDecimals)
-        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, RoundingConfig(roundingDecimals, roundingMode))
+        val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(roundingDecimals, roundingMode))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
 
@@ -257,19 +257,19 @@ public class Decimal : Number, Comparable<Decimal> {
     public operator fun plus(otherUByte: UByte) : Decimal = plus(otherUByte.toDecimal())
 
     @Throws(ArithmeticException::class)
-    public fun plus(other: Decimal, roundingConfig: RoundingConfig): Decimal {
-        return DecimalArithmetics.arithmeticPlus(this, other, roundingConfig)
+    public fun plus(other: Decimal, rounding: Rounding): Decimal {
+        return DecimalArithmetics.arithmeticPlus(this, other, rounding)
     }
-    public fun plus( otherDouble: Double, roundingConfig: RoundingConfig): Decimal = plus(otherDouble.toDecimal(),roundingConfig)
-    public fun plus( otherFloat: Float, roundingConfig: RoundingConfig): Decimal = plus(otherFloat.toDecimal(),roundingConfig)
-    public fun plus( otherLong: Long, roundingConfig: RoundingConfig): Decimal = plus(otherLong.toDecimal(),roundingConfig)
-    public fun plus( otherInt: Int, roundingConfig: RoundingConfig): Decimal = plus(otherInt.toDecimal(),roundingConfig)
-    public fun plus( otherShort: Short, roundingConfig: RoundingConfig): Decimal = plus(otherShort.toDecimal(),roundingConfig)
-    public fun plus( otherByte: Byte, roundingConfig: RoundingConfig): Decimal = plus(otherByte.toDecimal(),roundingConfig)
-    public fun plus( otherULong: ULong, roundingConfig: RoundingConfig): Decimal = plus(otherULong.toDecimal(),roundingConfig)
-    public fun plus( otherUInt: UInt, roundingConfig: RoundingConfig): Decimal = plus(otherUInt.toDecimal(),roundingConfig)
-    public fun plus( otherUShort: UShort, roundingConfig: RoundingConfig): Decimal = plus(otherUShort.toDecimal(),roundingConfig)
-    public fun plus( otherUByte: UByte, roundingConfig: RoundingConfig): Decimal = plus(otherUByte.toDecimal(),roundingConfig)
+    public fun plus(otherDouble: Double, rounding: Rounding): Decimal = plus(otherDouble.toDecimal(),rounding)
+    public fun plus(otherFloat: Float, rounding: Rounding): Decimal = plus(otherFloat.toDecimal(),rounding)
+    public fun plus(otherLong: Long, rounding: Rounding): Decimal = plus(otherLong.toDecimal(),rounding)
+    public fun plus(otherInt: Int, rounding: Rounding): Decimal = plus(otherInt.toDecimal(),rounding)
+    public fun plus(otherShort: Short, rounding: Rounding): Decimal = plus(otherShort.toDecimal(),rounding)
+    public fun plus(otherByte: Byte, rounding: Rounding): Decimal = plus(otherByte.toDecimal(),rounding)
+    public fun plus(otherULong: ULong, rounding: Rounding): Decimal = plus(otherULong.toDecimal(),rounding)
+    public fun plus(otherUInt: UInt, rounding: Rounding): Decimal = plus(otherUInt.toDecimal(),rounding)
+    public fun plus(otherUShort: UShort, rounding: Rounding): Decimal = plus(otherUShort.toDecimal(),rounding)
+    public fun plus(otherUByte: UByte, rounding: Rounding): Decimal = plus(otherUByte.toDecimal(),rounding)
 
 
     /***** operator minus (-) *****/
@@ -290,19 +290,19 @@ public class Decimal : Number, Comparable<Decimal> {
     public operator fun minus(otherUByte: UByte) : Decimal = minus(otherUByte.toDecimal())
 
     @Throws(ArithmeticException::class)
-    public fun minus(other: Decimal, roundingConfig: RoundingConfig): Decimal {
-        return DecimalArithmetics.arithmeticMinus(this, other, roundingConfig)
+    public fun minus(other: Decimal, rounding: Rounding): Decimal {
+        return DecimalArithmetics.arithmeticMinus(this, other, rounding)
     }
-    public fun minus( otherDouble: Double, roundingConfig: RoundingConfig): Decimal = minus(otherDouble.toDecimal(),roundingConfig)
-    public fun minus( otherFloat: Float, roundingConfig: RoundingConfig): Decimal = minus(otherFloat.toDecimal(),roundingConfig)
-    public fun minus( otherLong: Long, roundingConfig: RoundingConfig): Decimal = minus(otherLong.toDecimal(),roundingConfig)
-    public fun minus( otherInt: Int, roundingConfig: RoundingConfig): Decimal = minus(otherInt.toDecimal(),roundingConfig)
-    public fun minus( otherShort: Short, roundingConfig: RoundingConfig): Decimal = minus(otherShort.toDecimal(),roundingConfig)
-    public fun minus( otherByte: Byte, roundingConfig: RoundingConfig): Decimal = minus(otherByte.toDecimal(),roundingConfig)
-    public fun minus( otherULong: ULong, roundingConfig: RoundingConfig): Decimal = minus(otherULong.toDecimal(),roundingConfig)
-    public fun minus( otherUInt: UInt, roundingConfig: RoundingConfig): Decimal = minus(otherUInt.toDecimal(),roundingConfig)
-    public fun minus( otherUShort: UShort, roundingConfig: RoundingConfig): Decimal = minus(otherUShort.toDecimal(),roundingConfig)
-    public fun minus( otherUByte: UByte, roundingConfig: RoundingConfig): Decimal = minus(otherUByte.toDecimal(),roundingConfig)
+    public fun minus(otherDouble: Double, rounding: Rounding): Decimal = minus(otherDouble.toDecimal(),rounding)
+    public fun minus(otherFloat: Float, rounding: Rounding): Decimal = minus(otherFloat.toDecimal(),rounding)
+    public fun minus(otherLong: Long, rounding: Rounding): Decimal = minus(otherLong.toDecimal(),rounding)
+    public fun minus(otherInt: Int, rounding: Rounding): Decimal = minus(otherInt.toDecimal(),rounding)
+    public fun minus(otherShort: Short, rounding: Rounding): Decimal = minus(otherShort.toDecimal(),rounding)
+    public fun minus(otherByte: Byte, rounding: Rounding): Decimal = minus(otherByte.toDecimal(),rounding)
+    public fun minus(otherULong: ULong, rounding: Rounding): Decimal = minus(otherULong.toDecimal(),rounding)
+    public fun minus(otherUInt: UInt, rounding: Rounding): Decimal = minus(otherUInt.toDecimal(),rounding)
+    public fun minus(otherUShort: UShort, rounding: Rounding): Decimal = minus(otherUShort.toDecimal(),rounding)
+    public fun minus(otherUByte: UByte, rounding: Rounding): Decimal = minus(otherUByte.toDecimal(),rounding)
 
 
     /***** operator times (*) *****/
@@ -323,19 +323,19 @@ public class Decimal : Number, Comparable<Decimal> {
     public operator fun times(otherUByte: UByte) : Decimal = times(otherUByte.toDecimal())
 
     @Throws(ArithmeticException::class)
-    public fun times(other: Decimal, roundingConfig: RoundingConfig): Decimal {
-        return DecimalArithmetics.arithmeticTimes(this, other, roundingConfig)
+    public fun times(other: Decimal, rounding: Rounding): Decimal {
+        return DecimalArithmetics.arithmeticTimes(this, other, rounding)
     }
-    public fun times( otherDouble: Double, roundingConfig: RoundingConfig): Decimal = times(otherDouble.toDecimal(),roundingConfig)
-    public fun times( otherFloat: Float, roundingConfig: RoundingConfig): Decimal = times(otherFloat.toDecimal(),roundingConfig)
-    public fun times( otherLong: Long, roundingConfig: RoundingConfig): Decimal = times(otherLong.toDecimal(),roundingConfig)
-    public fun times( otherInt: Int, roundingConfig: RoundingConfig): Decimal = times(otherInt.toDecimal(),roundingConfig)
-    public fun times( otherShort: Short, roundingConfig: RoundingConfig): Decimal = times(otherShort.toDecimal(),roundingConfig)
-    public fun times( otherByte: Byte, roundingConfig: RoundingConfig): Decimal = times(otherByte.toDecimal(),roundingConfig)
-    public fun times( otherULong: ULong, roundingConfig: RoundingConfig): Decimal = times(otherULong.toDecimal(),roundingConfig)
-    public fun times( otherUInt: UInt, roundingConfig: RoundingConfig): Decimal = times(otherUInt.toDecimal(),roundingConfig)
-    public fun times( otherUShort: UShort, roundingConfig: RoundingConfig): Decimal = times(otherUShort.toDecimal(),roundingConfig)
-    public fun times( otherUByte: UByte, roundingConfig: RoundingConfig): Decimal = times(otherUByte.toDecimal(),roundingConfig)
+    public fun times(otherDouble: Double, rounding: Rounding): Decimal = times(otherDouble.toDecimal(),rounding)
+    public fun times(otherFloat: Float, rounding: Rounding): Decimal = times(otherFloat.toDecimal(),rounding)
+    public fun times(otherLong: Long, rounding: Rounding): Decimal = times(otherLong.toDecimal(),rounding)
+    public fun times(otherInt: Int, rounding: Rounding): Decimal = times(otherInt.toDecimal(),rounding)
+    public fun times(otherShort: Short, rounding: Rounding): Decimal = times(otherShort.toDecimal(),rounding)
+    public fun times(otherByte: Byte, rounding: Rounding): Decimal = times(otherByte.toDecimal(),rounding)
+    public fun times(otherULong: ULong, rounding: Rounding): Decimal = times(otherULong.toDecimal(),rounding)
+    public fun times(otherUInt: UInt, rounding: Rounding): Decimal = times(otherUInt.toDecimal(),rounding)
+    public fun times(otherUShort: UShort, rounding: Rounding): Decimal = times(otherUShort.toDecimal(),rounding)
+    public fun times(otherUByte: UByte, rounding: Rounding): Decimal = times(otherUByte.toDecimal(),rounding)
 
 
     /***** operator div (/) *****/
@@ -356,19 +356,19 @@ public class Decimal : Number, Comparable<Decimal> {
     public operator fun div(otherUByte: UByte) : Decimal = div(otherUByte.toDecimal())
 
     @Throws(ArithmeticException::class)
-    public fun div(other: Decimal, roundingConfig: RoundingConfig): Decimal {
-        return DecimalArithmetics.arithmeticDiv(this, other, roundingConfig)
+    public fun div(other: Decimal, rounding: Rounding): Decimal {
+        return DecimalArithmetics.arithmeticDiv(this, other, rounding)
     }
-    public fun div( otherDouble: Double, roundingConfig: RoundingConfig): Decimal = div(otherDouble.toDecimal(),roundingConfig)
-    public fun div( otherFloat: Float, roundingConfig: RoundingConfig): Decimal = div(otherFloat.toDecimal(),roundingConfig)
-    public fun div( otherLong: Long, roundingConfig: RoundingConfig): Decimal = div(otherLong.toDecimal(),roundingConfig)
-    public fun div( otherInt: Int, roundingConfig: RoundingConfig): Decimal = div(otherInt.toDecimal(),roundingConfig)
-    public fun div( otherShort: Short, roundingConfig: RoundingConfig): Decimal = div(otherShort.toDecimal(),roundingConfig)
-    public fun div( otherByte: Byte, roundingConfig: RoundingConfig): Decimal = div(otherByte.toDecimal(),roundingConfig)
-    public fun div( otherULong: ULong, roundingConfig: RoundingConfig): Decimal = div(otherULong.toDecimal(),roundingConfig)
-    public fun div( otherUInt: UInt, roundingConfig: RoundingConfig): Decimal = div(otherUInt.toDecimal(),roundingConfig)
-    public fun div( otherUShort: UShort, roundingConfig: RoundingConfig): Decimal = div(otherUShort.toDecimal(),roundingConfig)
-    public fun div( otherUByte: UByte, roundingConfig: RoundingConfig): Decimal = div(otherUByte.toDecimal(),roundingConfig)
+    public fun div(otherDouble: Double, rounding: Rounding): Decimal = div(otherDouble.toDecimal(),rounding)
+    public fun div(otherFloat: Float, rounding: Rounding): Decimal = div(otherFloat.toDecimal(),rounding)
+    public fun div(otherLong: Long, rounding: Rounding): Decimal = div(otherLong.toDecimal(),rounding)
+    public fun div(otherInt: Int, rounding: Rounding): Decimal = div(otherInt.toDecimal(),rounding)
+    public fun div(otherShort: Short, rounding: Rounding): Decimal = div(otherShort.toDecimal(),rounding)
+    public fun div(otherByte: Byte, rounding: Rounding): Decimal = div(otherByte.toDecimal(),rounding)
+    public fun div(otherULong: ULong, rounding: Rounding): Decimal = div(otherULong.toDecimal(),rounding)
+    public fun div(otherUInt: UInt, rounding: Rounding): Decimal = div(otherUInt.toDecimal(),rounding)
+    public fun div(otherUShort: UShort, rounding: Rounding): Decimal = div(otherUShort.toDecimal(),rounding)
+    public fun div(otherUByte: UByte, rounding: Rounding): Decimal = div(otherUByte.toDecimal(),rounding)
 
 
     /************* operator rem (%) ************/
@@ -389,19 +389,19 @@ public class Decimal : Number, Comparable<Decimal> {
     public operator fun rem(otherUByte: UByte) : Decimal = rem(otherUByte.toDecimal())
 
     @Throws(ArithmeticException::class)
-    public fun rem(other: Decimal, roundingConfig: RoundingConfig): Decimal {
-        return DecimalArithmetics.arithmeticRem(this, other, roundingConfig)
+    public fun rem(other: Decimal, rounding: Rounding): Decimal {
+        return DecimalArithmetics.arithmeticRem(this, other, rounding)
     }
-    public fun rem( otherDouble: Double, roundingConfig: RoundingConfig): Decimal = rem(otherDouble.toDecimal(),roundingConfig)
-    public fun rem( otherFloat: Float, roundingConfig: RoundingConfig): Decimal = rem(otherFloat.toDecimal(),roundingConfig)
-    public fun rem( otherLong: Long, roundingConfig: RoundingConfig): Decimal = rem(otherLong.toDecimal(),roundingConfig)
-    public fun rem( otherInt: Int, roundingConfig: RoundingConfig): Decimal = rem(otherInt.toDecimal(),roundingConfig)
-    public fun rem( otherShort: Short, roundingConfig: RoundingConfig): Decimal = rem(otherShort.toDecimal(),roundingConfig)
-    public fun rem( otherByte: Byte, roundingConfig: RoundingConfig): Decimal = rem(otherByte.toDecimal(),roundingConfig)
-    public fun rem( otherULong: ULong, roundingConfig: RoundingConfig): Decimal = rem(otherULong.toDecimal(),roundingConfig)
-    public fun rem( otherUInt: UInt, roundingConfig: RoundingConfig): Decimal = rem(otherUInt.toDecimal(),roundingConfig)
-    public fun rem( otherUShort: UShort, roundingConfig: RoundingConfig): Decimal = rem(otherUShort.toDecimal(),roundingConfig)
-    public fun rem( otherUByte: UByte, roundingConfig: RoundingConfig): Decimal = rem(otherUByte.toDecimal(),roundingConfig)
+    public fun rem(otherDouble: Double, rounding: Rounding): Decimal = rem(otherDouble.toDecimal(),rounding)
+    public fun rem(otherFloat: Float, rounding: Rounding): Decimal = rem(otherFloat.toDecimal(),rounding)
+    public fun rem(otherLong: Long, rounding: Rounding): Decimal = rem(otherLong.toDecimal(),rounding)
+    public fun rem(otherInt: Int, rounding: Rounding): Decimal = rem(otherInt.toDecimal(),rounding)
+    public fun rem(otherShort: Short, rounding: Rounding): Decimal = rem(otherShort.toDecimal(),rounding)
+    public fun rem(otherByte: Byte, rounding: Rounding): Decimal = rem(otherByte.toDecimal(),rounding)
+    public fun rem(otherULong: ULong, rounding: Rounding): Decimal = rem(otherULong.toDecimal(),rounding)
+    public fun rem(otherUInt: UInt, rounding: Rounding): Decimal = rem(otherUInt.toDecimal(),rounding)
+    public fun rem(otherUShort: UShort, rounding: Rounding): Decimal = rem(otherUShort.toDecimal(),rounding)
+    public fun rem(otherUByte: UByte, rounding: Rounding): Decimal = rem(otherUByte.toDecimal(),rounding)
 
 
     /************ infix operator mod (mod) ***********/
@@ -423,19 +423,19 @@ public class Decimal : Number, Comparable<Decimal> {
     public infix fun mod(otherUByte: UByte) : Decimal = mod(otherUByte.toDecimal())
 
     @Throws(ArithmeticException::class)
-    public fun mod(other: Decimal, roundingConfig: RoundingConfig): Decimal {
-        return DecimalArithmetics.arithmeticMod(this, other, roundingConfig)
+    public fun mod(other: Decimal, rounding: Rounding): Decimal {
+        return DecimalArithmetics.arithmeticMod(this, other, rounding)
     }
-    public fun mod( otherDouble: Double, roundingConfig: RoundingConfig): Decimal = mod(otherDouble.toDecimal(),roundingConfig)
-    public fun mod( otherFloat: Float, roundingConfig: RoundingConfig): Decimal = mod(otherFloat.toDecimal(),roundingConfig)
-    public fun mod( otherLong: Long, roundingConfig: RoundingConfig): Decimal = mod(otherLong.toDecimal(),roundingConfig)
-    public fun mod( otherInt: Int, roundingConfig: RoundingConfig): Decimal = mod(otherInt.toDecimal(),roundingConfig)
-    public fun mod( otherShort: Short, roundingConfig: RoundingConfig): Decimal = mod(otherShort.toDecimal(),roundingConfig)
-    public fun mod( otherByte: Byte, roundingConfig: RoundingConfig): Decimal = mod(otherByte.toDecimal(),roundingConfig)
-    public fun mod( otherULong: ULong, roundingConfig: RoundingConfig): Decimal = mod(otherULong.toDecimal(),roundingConfig)
-    public fun mod( otherUInt: UInt, roundingConfig: RoundingConfig): Decimal = mod(otherUInt.toDecimal(),roundingConfig)
-    public fun mod( otherUShort: UShort, roundingConfig: RoundingConfig): Decimal = mod(otherUShort.toDecimal(),roundingConfig)
-    public fun mod( otherUByte: UByte, roundingConfig: RoundingConfig): Decimal = mod(otherUByte.toDecimal(),roundingConfig)
+    public fun mod(otherDouble: Double, rounding: Rounding): Decimal = mod(otherDouble.toDecimal(),rounding)
+    public fun mod(otherFloat: Float, rounding: Rounding): Decimal = mod(otherFloat.toDecimal(),rounding)
+    public fun mod(otherLong: Long, rounding: Rounding): Decimal = mod(otherLong.toDecimal(),rounding)
+    public fun mod(otherInt: Int, rounding: Rounding): Decimal = mod(otherInt.toDecimal(),rounding)
+    public fun mod(otherShort: Short, rounding: Rounding): Decimal = mod(otherShort.toDecimal(),rounding)
+    public fun mod(otherByte: Byte, rounding: Rounding): Decimal = mod(otherByte.toDecimal(),rounding)
+    public fun mod(otherULong: ULong, rounding: Rounding): Decimal = mod(otherULong.toDecimal(),rounding)
+    public fun mod(otherUInt: UInt, rounding: Rounding): Decimal = mod(otherUInt.toDecimal(),rounding)
+    public fun mod(otherUShort: UShort, rounding: Rounding): Decimal = mod(otherUShort.toDecimal(),rounding)
+    public fun mod(otherUByte: UByte, rounding: Rounding): Decimal = mod(otherUByte.toDecimal(),rounding)
 
 
     /**********************  Other Math functions ***************************/
@@ -474,13 +474,13 @@ public class Decimal : Number, Comparable<Decimal> {
     private fun roundedMantissa(roundingMode: RoundingMode) : Long  {
         val (mantissa, decimals) = unpack64()
         if (decimals == 0) return mantissa  // nothing to do
-        val (rounded, _) = roundWithMode(mantissa, decimals, RoundingConfig(0, roundingMode))
+        val (rounded, _) = roundWithMode(mantissa, decimals, Rounding(0, roundingMode))
         return rounded
     }
 
 
-    public override fun toDouble(): Double = this.toString().toDouble()
-    public override fun toFloat(): Float = this.toString().toFloat()
+    public override fun toDouble(): Double = this.toRawString().toDouble()
+    public override fun toFloat(): Float = this.toRawString().toFloat()
     public override fun toLong(): Long = truncatedMantissa()
     public override fun toInt(): Int = truncatedMantissa().toInt()
     public override fun toShort(): Short = truncatedMantissa().toShort()
@@ -504,7 +504,7 @@ public class Decimal : Number, Comparable<Decimal> {
     /********************  Unformatted or formatted Output to human-readable Strings  ****************************/
 
 
-    public  fun toPlainString() : String {
+    public  fun toRawString() : String {
         if (isError()) return getError().toString()
         val (mantissa, decimals) = unpack64()
         return toRawString(mantissa, decimals)
@@ -528,17 +528,17 @@ public class Decimal : Number, Comparable<Decimal> {
     }
 
     public override fun toString() : String {
-        return toString(autoLocalConfig)
+        return toString(autoLocale)
     }
 
-    public fun toString(displayFormat: LocalConfig) : String {
+    public fun toString(displayFormat: Locale) : String {
             if (isError()) return getError().toString()
         // inserts grouping delimiters between groups of 3 digits dynamically and adds the minimum of decimal places
         // i.e., needs no formatting string and supports no overall minimum width; but no India lakh/crore format
         val groupingSeparatorString = displayFormat.groupingSeparator?.toString() ?: ""
         val decimalsSeparatorString = displayFormat.decimalSeparator.toString()
         val minDecimalPlaces = displayFormat.minDecimalPlaces
-        var rawString = this.toPlainString()
+        var rawString = this.toRawString()
         var integerPart: String
         var decimalPart: String
         val decimalPosition = rawString.indexOf(".")
@@ -574,8 +574,8 @@ public class Decimal : Number, Comparable<Decimal> {
 
 
     // @JvmRecord
-    public data class RoundingConfig(val decimalPlaces: Int = MAX_DECIMAL_PLACES, val roundingMode: RoundingMode = RoundingMode.HALF_UP) {
-        public constructor (decimalPlaces: Int): this(decimalPlaces, autoRoundingConfig.roundingMode)
+    public data class Rounding(val decimalPlaces: Int = MAX_DECIMAL_PLACES, val roundingMode: RoundingMode = RoundingMode.HALF_UP) {
+        public constructor (decimalPlaces: Int): this(decimalPlaces, autoRounding.roundingMode)
         init {
             require(decimalPlaces >= (0-MAX_DECIMAL_PLACES)) { "decimal places must be greater or equal -$MAX_DECIMAL_PLACES" }
             require(decimalPlaces <= MAX_DECIMAL_PLACES) { "decimal places must not be be greater than $MAX_DECIMAL_PLACES, is: $decimalPlaces" }
@@ -583,7 +583,7 @@ public class Decimal : Number, Comparable<Decimal> {
     }
 
     // @JvmRecord
-    public data class LocalConfig(val groupingSeparator: Char? = null, val decimalSeparator : Char = '.', val minDecimalPlaces: Int = 0) {
+    public data class Locale(val groupingSeparator: Char? = null, val decimalSeparator : Char = '.', val minDecimalPlaces: Int = 0) {
         init {
             if (groupingSeparator != null) {
                 require((groupingSeparator != decimalSeparator)) { "Grouping separator and decimal separator may not be equal '$groupingSeparator'" }
@@ -644,9 +644,9 @@ public class Decimal : Number, Comparable<Decimal> {
         public operator fun invoke(ulong:ULong): Decimal = Decimal(ulong.toLong())
 
         internal fun mkDecimalOrNull(numberString: String): Decimal? {
-            val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, autoRoundingConfig, true)
+            val decimalPair: Pair<Long, Int>? = mkDecimalParseOrNull(numberString, autoRounding, true)
             return if (decimalPair != null) {
-                val (roundedMantissa, roundedDecimals) = roundWithMode(decimalPair.first, decimalPair.second, autoRoundingConfig)
+                val (roundedMantissa, roundedDecimals) = roundWithMode(decimalPair.first, decimalPair.second, autoRounding)
                 Decimal(roundedMantissa, roundedDecimals)
             } else {
                 null
@@ -680,39 +680,39 @@ public class Decimal : Number, Comparable<Decimal> {
         }
         public fun getThrowOnErrors(): Boolean = shallThrowOnError
 
-        internal var autoRoundingConfig: RoundingConfig = RoundingConfig(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
-        internal val noRoundingConfig: RoundingConfig = RoundingConfig(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
-        internal var autoLocalConfig: LocalConfig = LocalConfig(null, '.',0)
+        internal var autoRounding: Rounding = Rounding(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
+        internal val noRounding: Rounding = Rounding(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
+        internal var autoLocale: Locale = Locale(null, '.',0)
 
         // for automatic rounding
         //internal var autoRoundingConfig.decimalPlaces: Int = MAX_DECIMAL_PLACES /* 0 - 15 */
 
-        public fun setRoundingConfig(roundingConfig: RoundingConfig) {
+        public fun setRounding(rounding: Rounding) {
             val setD = when {
-                (roundingConfig.decimalPlaces > MAX_DECIMAL_PLACES) -> MAX_DECIMAL_PLACES
-                (roundingConfig.decimalPlaces < 0) -> 0
-                else -> roundingConfig.decimalPlaces
+                (rounding.decimalPlaces > MAX_DECIMAL_PLACES) -> MAX_DECIMAL_PLACES
+                (rounding.decimalPlaces < 0) -> 0
+                else -> rounding.decimalPlaces
             }
-            autoRoundingConfig = RoundingConfig(setD, roundingConfig.roundingMode)
+            autoRounding = Rounding(setD, rounding.roundingMode)
         }
 
-        public fun setLocalConfig(localConfig: LocalConfig) {
-            autoLocalConfig = localConfig
+        public fun setLocale(locale: Locale) {
+            autoLocale = locale
         }
 
         public fun setMaxDecimalPlaces(maxDecimalPlaces: Int) {
-            setRoundingConfig(RoundingConfig(maxDecimalPlaces))
+            setRounding(Rounding(maxDecimalPlaces))
         }
-        public fun getMaxDecimalPlaces(): Int = autoRoundingConfig.decimalPlaces
+        public fun getMaxDecimalPlaces(): Int = autoRounding.decimalPlaces
 
         // private var autoFormatString: String = "#,###,###,##0.00"
         // ??? important for India: lakh/crore system? otherwise toFormattedString() is sufficient
 
         public fun setRoundingMode(mode: RoundingMode) {
-            setRoundingConfig(RoundingConfig(autoRoundingConfig.decimalPlaces, mode))
+            setRounding(Rounding(autoRounding.decimalPlaces, mode))
         }
 
-        public fun getRoundingMode():RoundingMode = autoRoundingConfig.roundingMode
+        public fun getRoundingMode():RoundingMode = autoRounding.roundingMode
 
 
         /***************************  Simple output core routine   ***************************/

@@ -49,7 +49,7 @@ private fun IsMantissaStringTooLong(mantissaString: String): Boolean {
 }
 
 
-internal fun mkDecimalParseOrNull (rawNumberString: String, roundingConfig: Decimal.RoundingConfig, orNull: Boolean) : Pair <Long, Int>? {
+internal fun mkDecimalParseOrNull (rawNumberString: String, rounding: Decimal.Rounding, orNull: Boolean) : Pair <Long, Int>? {
     val cleanedNumberString = rawNumberString.replace("_","").replace(" ","")
 
     val decimalNumberPattern = """(?<prefix>[+-])?(?<integer>[+-]?\d*)(?:\.(?<fraction>\d*))?(?:[Ee](?<exponent>[+-]?\d+))?"""
@@ -72,7 +72,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, roundingConfig: Deci
     var decimalPlaces = fractionString.length
     decimalPlaces -= exponent
 
-    val desiredDecimalPlaces = roundingConfig.decimalPlaces
+    val desiredDecimalPlaces = rounding.decimalPlaces
 
     // detect if this won't fit into Decimal even after truncating+rounding, because of too many significant places
     if (wouldDecimalStringOverflow(mantissaString, decimalPlaces, desiredDecimalPlaces)) {

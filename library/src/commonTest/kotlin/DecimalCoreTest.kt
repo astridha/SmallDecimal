@@ -1,6 +1,6 @@
 package io.github.astridha.smalldecimal
 
-import io.github.astridha.smalldecimal.Decimal.Companion.noRoundingConfig
+import io.github.astridha.smalldecimal.Decimal.Companion.noRounding
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -23,36 +23,36 @@ class DecimalCoreTest {
             (17.5).Dc.toString(),
             "Double.Dc Constructor: 17.5"
         )
-        Decimal.setLocalConfig(Decimal.LocalConfig(null,'.',2))
+        Decimal.setLocale(Decimal.Locale(null,'.',2))
         assertEquals(
             "18.5001",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-         Decimal.setLocalConfig(Decimal.LocalConfig(null,'.',0))
+         Decimal.setLocale(Decimal.Locale(null,'.',0))
         assertEquals(
             "18500",
             "18500.000".Dc.toString(),
             "String.Dc Constructor: 18500.000"
         )
-         Decimal.setRoundingConfig(Decimal.RoundingConfig(2, Decimal.RoundingMode.HALF_UP))
+         Decimal.setRounding(Decimal.Rounding(2, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "18.5",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-        Decimal.setRoundingConfig(Decimal.RoundingConfig(0, Decimal.RoundingMode.HALF_UP))
+        Decimal.setRounding(Decimal.Rounding(0, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "19",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-         Decimal.setRoundingConfig(Decimal.RoundingConfig(15, Decimal.RoundingMode.HALF_UP))
+         Decimal.setRounding(Decimal.Rounding(15, Decimal.RoundingMode.HALF_UP))
     }
 
     @Test fun doubleConstructorTests() {
 
-        Decimal.setRoundingConfig(noRoundingConfig)
+        Decimal.setRounding(noRounding)
         assertEquals(
             "100000.47",
             Decimal(100000.47).toString(),
@@ -84,7 +84,7 @@ class DecimalCoreTest {
             "DoubleConstructor: 15 (d=14)"
         )
 
-        Decimal.setRoundingConfig(Decimal.RoundingConfig(5, Decimal.RoundingMode.HALF_UP))
+        Decimal.setRounding(Decimal.Rounding(5, Decimal.RoundingMode.HALF_UP))
 
         assertEquals(
             "15.000001",
@@ -101,7 +101,7 @@ class DecimalCoreTest {
             15.000009.Dc.toString(),  // 6 places when precision is 5!
             "15.000009 DoubleConstructor (d=6, p=5) toString()"
         )
-        Decimal.setRoundingConfig(Decimal.RoundingConfig(6, Decimal.RoundingMode.HALF_UP))
+        Decimal.setRounding(Decimal.Rounding(6, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "15.000001",
             15.000001.Dc.toString(),  // 6 places when precision is 6!
