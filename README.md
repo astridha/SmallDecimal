@@ -4,20 +4,20 @@ This library offers a fixed-size **Decimal** class with small exponents and a pr
 
 Made for Kotlin Multiplatform.
 
-The **Decimal** class is fully platform independent and implements Number and Comparable interfaces, with a 64 Bit footprint.   
+The **Decimal** class implements Number and Comparable interfaces, with a 64 Bit footprint.   
 It supports math binary operators **+**, **-**, <b>*</b>, **/**, and **%**, as well as unary operators **+**, **-**, **++**, and **--**.
 
 
 ## Characteristics   
 
-The footprint of a **Decimal** instance consists of a 60 bit mantissa, and a 4 bit exponent.
+The footprint of a **Decimal** instance corresponds to the 64bit **Long** size. It consists of a 60 bit mantissa, and a 4 bit exponent.
 
 It's mantissa range is from -576_460_752_303_423_487 to +576_460_752_303_423_487.  
 
-So, 17 - 18 significant decimal digits with 0 - 15 decimal places are supported.
+So, 17 to 18 significant decimal digits with 0 to 15 decimal places are supported.
 
-It's small fixed 64bit footprint makes it possible to store it as an (unsigned) Long variable type anywhere where 8-Byte places are available.
-
+It's small fixed footprint makes it possible to store it as an (unsigned) Long variable type anywhere where 8-Byte places are available.
+.
 
 
 ### Convenient usage
