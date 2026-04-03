@@ -114,14 +114,14 @@ class ArithmeticTests {
     }
     @Test fun arithmeticModTests() {
 
-        Decimal.setRounding(Decimal.Rounding(15,Decimal.RoundingMode.UP))
+        Decimal.initRounding(Decimal.Rounding(15,Decimal.RoundingMode.UP))
         assertEquals(
             "4.00001",
             10.Dc.mod(5.99999.Dc).toString(),
             "operator (10.Dc.mod 5.99999.Dc, 15, Decimal.RoundingMode.UP) with autoRoundingMode"
         )
 
-        Decimal.setRounding(Decimal.Rounding(2,Decimal.RoundingMode.UP))
+        Decimal.initRounding(Decimal.Rounding(2,Decimal.RoundingMode.UP))
         assertEquals(
             "4",
             10.Dc.mod(5.99999.Dc).toString(),
@@ -138,7 +138,7 @@ class ArithmeticTests {
             "operator (10.Dc.mod 5.99999.Dc, 3, Decimal.RoundingMode.DOWN)"
         )
 
-        Decimal.setRounding(Decimal.noRounding)
+        Decimal.initRounding(Decimal.noRounding)
         assertEquals(
             "4.00001",
             10.Dc.mod(5.99999.Dc, Decimal.Rounding(10, Decimal.RoundingMode.HALF_EVEN)).toString(),
