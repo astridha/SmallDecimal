@@ -39,22 +39,24 @@ Use arithmetical operators conveniently, like
 
 
 ## How to start
-Before using, initialize  \
-``` Decimal.setRounding (rounding: Decimal.Rounding = Decimal.Rounding(2, Decimal.RoundingMode.HALF_UP)) ```
- \
-``` Decimal.setLocale (locale: Decimal.Locale = Decimal.Locale(null, '.', 2)) ```
 
 ### Configuring before use
+Before using, initialize the automatic rounding behavior as well as the standard output format. \
+``` Decimal.initRounding (rounding: Decimal.Rounding = Decimal.Rounding(2, Decimal.RoundingMode.HALF_UP)) ```
+\
+``` Decimal.initLocale (locale: Decimal.Locale = Decimal.Locale(null, '.', 2)) ```
 
 As the **Decimal** type shall integrate seamlessly into the project, two aspects must be configured initially.
 
 #### The automatic rounding
-This is necessary to fit the number within the overall maximum of 17 to 18 places while also maintaining the
-decimal places that are required.  
+This is necessary to fit the number's order of magnitude optimally within the overall restriction of 17 to 18 significant places while also maintaining the
+decimal places that are required (frequently 2 or 3 if it is about financial).  \
+Moreover, a decision must be made which rounding method shall be applied for this purpose.
+
 A class defines the required decimal places and the rounding mode that will be applied to ensure them.  
 ``` public class Decimal.Rounding(decimalPlaces: Int, roundingMode: Decimal.RoundingMode) ```  
-Configuring is done with a setRounding() call:  
-``` Decimal.setRounding (rounding: Decimal.Rounding) ```   
+Configuring is done with a initRounding() call:  
+``` Decimal.initRounding (rounding: Decimal.Rounding) ```   
 See below for details.
 
 #### The local formatting for input and output
@@ -91,7 +93,7 @@ val roundingPreference: Rounding = Rounding(2,RoundingMode.HALF_EVEN)
 ```
 
 
-#### Setting the automatic mode with ```setRounding (rounding: Rounding)```
+#### Setting the automatic mode with ```initRounding (rounding: Rounding)```
 sets the way in which every Decimal will be rounded to automatically after each arithmetic calculation.  
 
 The supported range is from 0 to 15.   
@@ -99,15 +101,15 @@ The supported range is from 0 to 15.
 ``` initRounding (2, HALF_UP)```  means that all Decimals will be rounded to two decimal places.    
 ``` initRounding (0, HALF_EVEN)```  means that only whole numbers will be generated, and will be rounded to the next even number.
 
-#### setLocale (groupingSeparator: Char?, decimalSeparator: Char, minDecimalPlaces: Int)
+#### initLocale (groupingSeparator: Char?, decimalSeparator: Char, minDecimalPlaces: Int)
 Configures how the Decimal will be formatted to with  **toString()**.
 Sets grouping separator and decimal separator, and the number of minimum decimal places.  
 The supported range is from 0 to any positive value.   
 0 is the default value and means there are no printed mandatory decimal places.  
 If this setting sets more decimal places than the Decimal value has, the remaining decimal places are filled with "0"s.  
 If there are more decimal places than ```minDecimalPlaces```, they are all shown
-``` kotlin setLocale (',', '.', 2)```  means that the grouping separator is a comma, decimal point is a dot, and at least two decimal places will be shown.  
-``` kotlin setLocale (null, '.', 0)```  means that no grouping separator is used, the decimal point is a comma, and only necessary decimal places will be shown.
+``` kotlin initLocale (',', '.', 2)```  means that the grouping separator is a comma, decimal point is a dot, and at least two decimal places will be shown.  
+``` kotlin initLocale (null, '.', 0)```  means that no grouping separator is used, the decimal point is a comma, and only necessary decimal places will be shown.
 
 
 ### Rounding
