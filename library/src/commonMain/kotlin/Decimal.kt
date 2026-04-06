@@ -670,35 +670,44 @@ public class Decimal : Number, Comparable<Decimal> {
         public const val SAFE_LONG_SIGNIFICANTS: Int = MAX_LONG_SIGNIFICANTS - 1
         public const val MAX_LONG_VALUE_AS_STRING: String = "9223372036854775807"
 
-        public val ONE: Decimal = Decimal(1,0)
+        @JvmField
+        public val ONE: Decimal = Decimal(1L,0)
+        @get:JvmName("ONE")
 
-        public val NaN: Decimal = Decimal(0, Error.NOT_A_NUMBER.ordinal)
+        @JvmField
+        public val NaN: Decimal = Decimal(0L, Error.NOT_A_NUMBER.ordinal)
+        @get:JvmName("NaN")
 
+        @JvmField
         public val MAX_VALUE: Decimal = Decimal(MAX_MANTISSA_VALUE,0)
+        @get:JvmName("MAX_VALUE")
+
+        @JvmField
         public val MIN_VALUE: Decimal = Decimal(MIN_DECIMAL_LONG_VALUE,0)
+        @get:JvmName("MIN_VALUE")
 
         // static (common) variables and functions
 
         // throw exceptions, or encode error numbers in Decimal?
         internal var shallThrowOnError: Boolean = true
-        public fun setThrowOnErrors(shallThrow: Boolean) {
+        @JvmStatic public fun setThrowOnErrors(shallThrow: Boolean) {
             shallThrowOnError = shallThrow
         }
-        public fun getThrowOnErrors(): Boolean = shallThrowOnError
+        @JvmStatic public fun getThrowOnErrors(): Boolean = shallThrowOnError
 
         internal var autoRounding: Rounding = Rounding(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
         internal val noRounding: Rounding = Rounding(MAX_DECIMAL_PLACES, RoundingMode.HALF_UP)
         internal var autoLocale: Locale = Locale(null, '.',0)
         internal val noLocale: Locale = Locale(null, '.',0)
 
-        public fun setLocale(locale: Locale) {
+        @JvmStatic public fun setLocale(locale: Locale) {
             autoLocale = locale
         }
 
         // for automatic rounding
         //internal var autoRoundingConfig.decimalPlaces: Int = MAX_DECIMAL_PLACES /* 0 - 15 */
 
-        public fun initRounding(decimalPlaces: Int, roundingMode: RoundingMode) {
+        @JvmStatic public fun initRounding(decimalPlaces: Int, roundingMode: RoundingMode) {
             val setD = when {
                 (decimalPlaces > MAX_DECIMAL_PLACES) -> MAX_DECIMAL_PLACES
                 (decimalPlaces < 0) -> 0
@@ -707,19 +716,19 @@ public class Decimal : Number, Comparable<Decimal> {
             autoRounding = Rounding(setD, roundingMode)
         }
 
-        public fun initRounding(rounding: Rounding) {
+        @JvmStatic public fun initRounding(rounding: Rounding) {
             initRounding(rounding.decimalPlaces, rounding.roundingMode)
         }
 
-        public fun setRoundingDecimalPlaces(decimalPlaces: Int) {
+        @JvmStatic public fun setRoundingDecimalPlaces(decimalPlaces: Int) {
             initRounding(decimalPlaces, autoRounding.roundingMode)
         }
-        public fun getRoundingDecimalPlaces(): Int = autoRounding.decimalPlaces
+        @JvmStatic public fun getRoundingDecimalPlaces(): Int = autoRounding.decimalPlaces
 
-        public fun setRoundingMode(mode: RoundingMode) {
+        @JvmStatic public fun setRoundingMode(mode: RoundingMode) {
             initRounding(autoRounding.decimalPlaces, mode)
         }
-        public fun getRoundingMode():RoundingMode = autoRounding.roundingMode
+        @JvmStatic public fun getRoundingMode():RoundingMode = autoRounding.roundingMode
 
         // private var autoFormatString: String = "#,###,###,##0.00"
         // ??? important for India: lakh/crore system? otherwise toFormattedString() is sufficient
@@ -760,7 +769,7 @@ public class Decimal : Number, Comparable<Decimal> {
             return (decimalPlaces !=0)
         }
 
-        public fun getError(errno: Int): Error {
+        @JvmStatic public fun getError(errno: Int): Error {
             if ((errno > 0) && (errno <= MAX_DECIMAL_PLACES) && (errno < Error.entries.count())) return Error.entries[errno]
             return Error.NO_ERROR
         }

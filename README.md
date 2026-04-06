@@ -1,6 +1,6 @@
 # A Small Decimal Type for KMP Multiplatform
 
-This library offers a fixed-size **Decimal** class with small exponents and a predictive footprint.  
+This platform independent library offers a fixed-size **Decimal** class with small exponents and a predictive footprint.  
 
 Made for Kotlin Multiplatform.
 
@@ -96,8 +96,8 @@ sets the way in which every Decimal will be rounded to automatically after each 
 
 The supported range is from 0 to 15.   
 15 is the default value and the maximum supported precision.  
-``` kotlin setRounding (2, HALF_UP)```  means that all Decimals will be rounded to two decimal places.    
-``` kotlin setRounding (0, HALF_EVEN)```  means that only whole numbers will be generated, and will be rounded to the next even number.
+``` initRounding (2, HALF_UP)```  means that all Decimals will be rounded to two decimal places.    
+``` initRounding (0, HALF_EVEN)```  means that only whole numbers will be generated, and will be rounded to the next even number.
 
 #### setLocale (groupingSeparator: Char?, decimalSeparator: Char, minDecimalPlaces: Int)
 Configures how the Decimal will be formatted to with  **toString()**.
