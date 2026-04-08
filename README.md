@@ -49,8 +49,11 @@ Before using, initialize the automatic rounding behavior as well as the standard
 As the **Decimal** type shall integrate seamlessly into the project, two aspects must be configured initially.
 
 #### The automatic rounding
-This is necessary to fit the number's order of magnitude optimally within the overall restriction of 17 to 18 significant places while also maintaining the
-decimal places that are required (frequently 2 or 3 if it is about financial).  \
+This is necessary to fit the number's order of magnitude optimally within the overall restriction of the small footprint.  \
+The default (and maximum supported) number of decimal places is 15. This will not be reserved for decimal places, but might be reached quickly through various subsequent arithmetical calculations.  
+But as the width of the decimal's mantissa is limited to overall 17 - 18 digits, an overflow it imminent. Therefore, it is preferable to limit the share for decimal places that are really needed. E.g. for currencies this may be two digits.  
+The limiting is done by automatically round the calculated value back to the desired decimal places with each calculaton.
+
 Moreover, a decision must be made which rounding method shall be applied for this purpose.
 
 A class defines the required decimal places and the rounding mode that will be applied to ensure them.  
