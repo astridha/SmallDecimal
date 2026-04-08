@@ -3,6 +3,8 @@ package io.github.astridha.smalldecimal
 import io.github.astridha.smalldecimal.DecimalArithmetics.Companion.equalizeDecimals
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmRecord
 import kotlin.jvm.JvmStatic
 import kotlin.math.abs
 import kotlin.math.min
@@ -14,7 +16,7 @@ import kotlin.math.sign
 public class Decimal : Number, Comparable<Decimal> {
 
     // 60-bit long mantissa plus 4-Bit long exponent (decimal places):
-    protected var decimal64: Long = 0L
+    private var decimal64: Long = 0L
 
 
     public enum class RoundingMode {
@@ -152,42 +154,52 @@ public class Decimal : Number, Comparable<Decimal> {
 
     /*******************  Rounding functions  *********************************/
 
-    public fun ceil(desiredDecimals: Int = 0) : Decimal  {
+    public fun ceil(desiredDecimals: Int) : Decimal  {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(desiredDecimals, RoundingMode.CEILING))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
+    public fun ceil() : Decimal = ceil(0)
 
-    public fun floor(desiredDecimals: Int = 0) : Decimal  {
+
+    public fun floor(desiredDecimals: Int) : Decimal  {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(desiredDecimals, RoundingMode.FLOOR))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
+    public fun floor() : Decimal = floor(0)
 
-    public fun truncate(desiredDecimals: Int = 0) : Decimal  {
+    public fun truncate(desiredDecimals: Int) : Decimal  {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(desiredDecimals, RoundingMode.DOWN))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
+    public fun truncate() : Decimal = truncate(0)
 
-    public fun round(desiredDecimals: Int = 0) : Decimal  {
+
+     public fun round(desiredDecimals: Int) : Decimal  {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(desiredDecimals, RoundingMode.HALF_EVEN))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
+    public fun round() : Decimal = round(0)
 
 
-    public fun setScale(desiredDecimals: Int = autoRounding.decimalPlaces, roundingMode: RoundingMode = autoRounding.roundingMode): Decimal {
+    //@JvmOverloads
+    public fun scale(desiredDecimals: Int, roundingMode: RoundingMode): Decimal {
         if (isError()) return clone()
         val (mantissa, decimals) = unpack64()
         val roundingDecimals = min(MAX_DECIMAL_PLACES, desiredDecimals)
         val (newMantissa, newDecimals) = roundWithMode(mantissa, decimals, Rounding(roundingDecimals, roundingMode))
         return Decimal(newMantissa, if (newMantissa == 0L)  0 else newDecimals)
     }
+    public fun scale() : Decimal = scale(desiredDecimals = autoRounding.decimalPlaces, roundingMode = autoRounding.roundingMode)
+    public fun scale(desiredDecimals: Int) : Decimal = scale(desiredDecimals, roundingMode=autoRounding.roundingMode)
+    public fun scale(roundingMode: RoundingMode) : Decimal = scale(autoRounding.decimalPlaces, roundingMode)
 
     /*******************  Operator Overloads  ******************/
 
@@ -579,16 +591,17 @@ public class Decimal : Number, Comparable<Decimal> {
     }
 
 
-    // @JvmRecord
-    public data class Rounding(val decimalPlaces: Int = MAX_DECIMAL_PLACES, val roundingMode: RoundingMode = RoundingMode.HALF_UP) {
+    //@JvmRecord
+    public data class Rounding(val decimalPlaces: Int, val roundingMode: RoundingMode) {
         public constructor (decimalPlaces: Int): this(decimalPlaces, autoRounding.roundingMode)
+        public constructor (roundingMode: RoundingMode): this(autoRounding.decimalPlaces, roundingMode)
         init {
             require(decimalPlaces >= (0-MAX_DECIMAL_PLACES)) { "decimal places must be greater or equal -$MAX_DECIMAL_PLACES" }
             require(decimalPlaces <= MAX_DECIMAL_PLACES) { "decimal places must not be be greater than $MAX_DECIMAL_PLACES, is: $decimalPlaces" }
         }
     }
 
-    // @JvmRecord
+    //@JvmRecord
     public data class Locale(val groupingSeparator: Char? = null, val decimalSeparator : Char = '.', val minDecimalPlaces: Int = 0) {
         init {
             if (groupingSeparator != null) {
@@ -672,19 +685,19 @@ public class Decimal : Number, Comparable<Decimal> {
 
         @JvmField
         public val ONE: Decimal = Decimal(1L,0)
-        @get:JvmName("ONE")
+        //@get:JvmName("ONE")
 
         @JvmField
         public val NaN: Decimal = Decimal(0L, Error.NOT_A_NUMBER.ordinal)
-        @get:JvmName("NaN")
+        //@get:JvmName("NaN")
 
         @JvmField
         public val MAX_VALUE: Decimal = Decimal(MAX_MANTISSA_VALUE,0)
-        @get:JvmName("MAX_VALUE")
+        //@get:JvmName("MAX_VALUE")
 
         @JvmField
         public val MIN_VALUE: Decimal = Decimal(MIN_DECIMAL_LONG_VALUE,0)
-        @get:JvmName("MIN_VALUE")
+        //@get:JvmName("MIN_VALUE")
 
         // static (common) variables and functions
 
@@ -720,15 +733,30 @@ public class Decimal : Number, Comparable<Decimal> {
             initRounding(rounding.decimalPlaces, rounding.roundingMode)
         }
 
+        //@JvmField
+        @get:JvmName("roundingMode")
+        public var roundingMode: RoundingMode = autoRounding.roundingMode
+            //get() = autoRounding.roundingMode
+            private set
+
+        //@JvmField
+        @get:JvmName("roundingDecimalPlaces")
+        public var roundingDecimalPlaces: Int = autoRounding.decimalPlaces
+            //get() = autoRounding.decimalPlaces
+            private set
+
+        @JvmStatic public fun getRoundingDecimalPlaces(): Int = autoRounding.decimalPlaces
+
+        @JvmStatic public fun getRoundingMode():RoundingMode = autoRounding.roundingMode
+
+        /*
         @JvmStatic public fun setRoundingDecimalPlaces(decimalPlaces: Int) {
             initRounding(decimalPlaces, autoRounding.roundingMode)
         }
-        @JvmStatic public fun getRoundingDecimalPlaces(): Int = autoRounding.decimalPlaces
-
         @JvmStatic public fun setRoundingMode(mode: RoundingMode) {
             initRounding(autoRounding.decimalPlaces, mode)
         }
-        @JvmStatic public fun getRoundingMode():RoundingMode = autoRounding.roundingMode
+        */
 
         // private var autoFormatString: String = "#,###,###,##0.00"
         // ??? important for India: lakh/crore system? otherwise toFormattedString() is sufficient

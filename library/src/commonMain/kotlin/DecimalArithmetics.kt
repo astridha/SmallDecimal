@@ -222,7 +222,7 @@ internal class DecimalArithmetics {
             val subtractor = arithmeticTimes(otherD, divided, Decimal.noRounding)
             val result = arithmeticMinus(thisD, subtractor, Decimal.noRounding)
             println("Remainder: this: $thisD, other: $otherD, result: ${(thisD - (otherD * divided))}")
-            return result.setScale(rounding.decimalPlaces, rounding.roundingMode)
+            return result.scale(rounding.decimalPlaces, rounding.roundingMode)
         }
 
 
@@ -238,7 +238,7 @@ internal class DecimalArithmetics {
             val subtractor = arithmeticTimes(otherD, flooredQuotient, Decimal.noRounding)
             val result = arithmeticMinus(thisD, subtractor, Decimal.noRounding)
             println("Modulo: a: $thisD, m: $otherD, flooredquotient: $flooredQuotient,  m*floor: ${otherD * flooredQuotient}, subt: $subtractor,  a-(m*floor): ${(thisD - (otherD * flooredQuotient))}, result: $result")
-            return result.setScale(rounding.decimalPlaces, rounding.roundingMode)
+            return result.scale(rounding.decimalPlaces, rounding.roundingMode)
          }
 
 

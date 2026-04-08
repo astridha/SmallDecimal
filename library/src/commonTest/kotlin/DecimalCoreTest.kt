@@ -1,6 +1,6 @@
 package io.github.astridha.smalldecimal
 
-import io.github.astridha.smalldecimal.Decimal.Companion.noRounding
+import io.github.astridha.smalldecimal.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -52,7 +52,7 @@ class DecimalCoreTest {
 
     @Test fun doubleConstructorTests() {
 
-        Decimal.initRounding(noRounding)
+        Decimal.initRounding(Decimal.noRounding)
         assertEquals(
             "100000.47",
             Decimal(100000.47).toString(),
@@ -112,7 +112,8 @@ class DecimalCoreTest {
             Decimal(15.000000000000009).toString(),
             "DoubleConstructor: 15.000000000000009 (d=15, p=6)"
         )
-        Decimal.setRoundingDecimalPlaces(15)
+        Decimal.initRounding(Decimal.Rounding(15, Decimal.RoundingMode.HALF_UP))
+
         assertEquals(
             "15.000000000000009",
             Decimal(15.000000000000009).toString(),
@@ -127,7 +128,7 @@ class DecimalCoreTest {
 
     @Test fun floatConstructorTests() {
 
-        Decimal.setRoundingDecimalPlaces(15) // default
+        Decimal.initRounding(Decimal.Rounding(15, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "100000.47",
             Decimal(100000.47F).toString(),
@@ -233,7 +234,7 @@ class DecimalCoreTest {
             Decimal("123456.1234567890123456").toString(),
             "stringConstructor: \"123456.1234567890123456\", with rounding to 3 dplc"
         )
-        Decimal.setRoundingDecimalPlaces(15)
+        Decimal.initRounding(Decimal.Rounding(15))
         assertEquals(
             "123456.123",
             Decimal("123..456,123",Decimal.Locale('.',',', 5)).toString(),
