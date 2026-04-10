@@ -1,15 +1,16 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("multiplatform") version "2.3.0"
+    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
+
     id("com.vanniktech.maven.publish") version "0.36.0"
     id("maven-publish")
 }
 
 group = "io.github.astridha"
 // artifact="smalldecimal"
-version = "0.8.0"
+version = "0.8.5"
 
 
 kotlin {
@@ -18,10 +19,10 @@ kotlin {
 
     // targets
     jvm()
-    //@Suppress("UnstableApiUsage")
-    // androidLibrary {
-    androidLibrary {
+
+     android {
         namespace = "io.github.astridha.smalldecimal"
+        // defined in libs.versions.toml:
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
@@ -33,7 +34,7 @@ kotlin {
 
         compilerOptions {
             jvmTarget.set(
-                JvmTarget.JVM_11
+                JvmTarget.JVM_17
             )
         }
 
@@ -66,12 +67,12 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            //put your multiplatform dependencies here
+            // none!
         }
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            //implementation(androidx.test.runner)
+            // implementation(androidx.test.runner)
             // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         }
 
@@ -81,7 +82,7 @@ kotlin {
 mavenPublishing {
     publishToMavenCentral()
 
-    // remove comment slashes below for publishing to maven central!
+    // remove comment slashes below for really publishing to maven central!
     // signAllPublications()
 
     coordinates(group.toString(), "smalldecimal", version.toString())

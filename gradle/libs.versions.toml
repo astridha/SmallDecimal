@@ -1,6 +1,5 @@
 [versions]
-agp = "8.13.2"
-androidGradlePlugin = "8.13.2"
+androidGradlePlugin = "9.1.0"
 kotlin = "2.3.0"
 android-minSdk = "24"
 android-compileSdk = "36"
@@ -13,5 +12,4 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
 
-# kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechMavenPublish" }

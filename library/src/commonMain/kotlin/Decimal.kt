@@ -1,5 +1,6 @@
 package io.github.astridha.smalldecimal
 
+import io.github.astridha.smalldecimal.Decimal.Rounding
 import io.github.astridha.smalldecimal.DecimalArithmetics.Companion.equalizeDecimals
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmName
@@ -591,7 +592,7 @@ public class Decimal : Number, Comparable<Decimal> {
     }
 
 
-    //@JvmRecord
+    @JvmRecord
     public data class Rounding(val decimalPlaces: Int, val roundingMode: RoundingMode) {
         public constructor (decimalPlaces: Int): this(decimalPlaces, autoRounding.roundingMode)
         public constructor (roundingMode: RoundingMode): this(autoRounding.decimalPlaces, roundingMode)
@@ -601,8 +602,9 @@ public class Decimal : Number, Comparable<Decimal> {
         }
     }
 
-    //@JvmRecord
-    public data class Locale(val groupingSeparator: Char? = null, val decimalSeparator : Char = '.', val minDecimalPlaces: Int = 0) {
+    @JvmRecord
+    public data class Locale(val groupingSeparator: Char?, val decimalSeparator : Char, val minDecimalPlaces : Int) {
+        public constructor (decimalSeparator : Char, minDecimalPlaces : Int): this(null, decimalSeparator, minDecimalPlaces)
         init {
             if (groupingSeparator != null) {
                 require((groupingSeparator != decimalSeparator)) { "Grouping separator and decimal separator may not be equal '$groupingSeparator'" }
