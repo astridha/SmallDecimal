@@ -88,8 +88,8 @@ mavenPublishing {
     coordinates(group.toString(), "smalldecimal", version.toString())
 
     pom {
-        name = "Small Decimal Library"
-        description = "Small Decimal Type on a 64bit footprint."
+        name = "KMP Small Decimal Library"
+        description = "Everyday Decimal type on a 64bit footprint with up to 15 decimal places."
         inceptionYear = "2026"
         url = "https://github.com/astridha/smalldecimal/"
         licenses {

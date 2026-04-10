@@ -16,6 +16,9 @@ import kotlin.math.sign
 
 public class Decimal : Number, Comparable<Decimal> {
 
+    // no default constructor!
+    // no init block!
+
     // 60-bit long mantissa plus 4-Bit long exponent (decimal places):
     private var decimal64: Long = 0L
 
@@ -75,10 +78,14 @@ public class Decimal : Number, Comparable<Decimal> {
 
 
     @Throws(ArithmeticException::class)
-    public constructor (float: Float, omitRounding: Boolean = false) : this(float.toString(), noLocale, omitRounding)
+    public constructor (float: Float) : this(float.toString(), noLocale, false)
+    @Throws(ArithmeticException::class)
+    public constructor (float: Float, omitRounding: Boolean) : this(float.toString(), noLocale, omitRounding)
 
     @Throws(ArithmeticException::class)
-    public constructor (double: Double, omitRounding: Boolean = false) : this(double.toString(), noLocale, omitRounding)
+    public constructor (double: Double) : this(double.toString(), noLocale, false)
+    @Throws(ArithmeticException::class)
+    public constructor (double: Double, omitRounding: Boolean) : this(double.toString(), noLocale, omitRounding)
 
     public constructor (other: Decimal) {
         decimal64 = other.decimal64   // or: clone()? difference?
@@ -104,9 +111,9 @@ public class Decimal : Number, Comparable<Decimal> {
     public constructor (short: Short)  : this(short.toLong())
     public constructor (int: Int)  : this(int.toLong())
 
-    // But constructors from Unsigned types would clash with them in JVM!
+    // Constructors from unsigned types would clash with those from signed types in JVM!
     // Because Java does not know unsigned numbers.
-    // So -> no plain constructor!
+    // So -> no plain constructor for unsigned types!
     // Instead, see the work-around invoke expressions in the Companion object!
 
     /**************************** Packing / Unpacking Helper Methods  ********************************/
@@ -456,6 +463,34 @@ public class Decimal : Number, Comparable<Decimal> {
     public fun mod(otherUShort: UShort, rounding: Rounding): Decimal = mod(otherUShort.toDecimal(),rounding)
     public fun mod(otherUByte: UByte, rounding: Rounding): Decimal = mod(otherUByte.toDecimal(),rounding)
 
+
+    /************ infix operator shl ***********/
+
+    @Throws(ArithmeticException::class)
+    public infix fun shl(shift: Int) : Decimal {
+        var (mantissa, decimals) = unpack64()
+        if (shift == 0)  Decimal(mantissa, decimals)
+        var step = shift
+        if (step < 0) { // negative: shift right!
+            for (step in -1..shift) {
+                if (decimals < MAX_DECIMAL_PLACES) decimals++
+                else mantissa /= 10
+            }
+        } else { // shift left, can overflow
+            for (step in 1..shift) {
+                if (decimals > 0) decimals--
+                else {
+                    val mantissa2 = mantissa * 10
+                    if (abs(mantissa2) < abs(mantissa)) {
+                        // additionally apply Decimals mask here!
+                        return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this shl $shift result does not fit into Decimal")
+                    }
+                    mantissa *= 10
+                }
+             }
+        }
+        return  Decimal(mantissa, decimals)
+    }
 
     /**********************  Other Math functions ***************************/
 
