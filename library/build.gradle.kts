@@ -83,7 +83,7 @@ mavenPublishing {
     publishToMavenCentral()
 
     // remove comment slashes below for really publishing to maven central!
-    // signAllPublications()
+    signAllPublications()
 
     coordinates(group.toString(), "smalldecimal", version.toString())
 
