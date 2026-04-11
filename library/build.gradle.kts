@@ -1,3 +1,4 @@
+import com.vanniktech.maven.publish.DeploymentValidation
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -80,7 +81,7 @@ kotlin {
 }
 
 mavenPublishing {
-    publishToMavenCentral()
+    publishToMavenCentral(automaticRelease = true, validateDeployment = DeploymentValidation.PUBLISHED)
 
     // remove comment slashes below for really publishing to maven central!
     signAllPublications()
