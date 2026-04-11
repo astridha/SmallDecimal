@@ -181,8 +181,8 @@ round(desiredprecision: Int): Decimal  // RoundingMode.HALF_EVEN
 Dependencies in build.gradle.kts:
 ``` kotlin
 dependencies {
-// ...
-implementation("io.github.astridha:smalldecimal:0.8.5")
+    // ...
+    implementation("io.github.astridha:smalldecimal:0.8.5")
 }
 ```
 
@@ -191,3 +191,7 @@ Import in source files:
 import io.github.astridha.smalldecimal.*
 ```
 
+-----
+
+### setThrowOnErrors(Boolean)
+configures whether ArithmeticExceptions are thrown when NaN, overflows etc. occur.

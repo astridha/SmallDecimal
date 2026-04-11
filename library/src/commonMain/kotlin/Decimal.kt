@@ -464,35 +464,7 @@ public class Decimal : Number, Comparable<Decimal> {
     public fun mod(otherUByte: UByte, rounding: Rounding): Decimal = mod(otherUByte.toDecimal(),rounding)
 
 
-    /************ infix operator shl ***********/
-
-    @Throws(ArithmeticException::class)
-    public infix fun shl(shift: Int) : Decimal {
-        var (mantissa, decimals) = unpack64()
-        if (shift == 0)  Decimal(mantissa, decimals)
-        var step = shift
-        if (step < 0) { // negative: shift right!
-            for (step in -1..shift) {
-                if (decimals < MAX_DECIMAL_PLACES) decimals++
-                else mantissa /= 10
-            }
-        } else { // shift left, can overflow
-            for (step in 1..shift) {
-                if (decimals > 0) decimals--
-                else {
-                    val mantissa2 = mantissa * 10
-                    if (abs(mantissa2) < abs(mantissa)) {
-                        // additionally apply Decimals mask here!
-                        return generateErrorDecimal(Error.MULTIPLY_OVERFLOW, "$this shl $shift result does not fit into Decimal")
-                    }
-                    mantissa *= 10
-                }
-             }
-        }
-        return  Decimal(mantissa, decimals)
-    }
-
-    /**********************  Other Math functions ***************************/
+     /**********************  Other Math functions ***************************/
 
     // still missing: pow, pow(n), pow(Dc), sqrt
 
