@@ -1,6 +1,6 @@
 package io.github.astridha.smalldecimal
 
-import io.github.astridha.smalldecimal.Decimal.Companion.noRounding
+import io.github.astridha.smalldecimal.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -29,30 +29,30 @@ class DecimalCoreTest {
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-         Decimal.setLocale(Decimal.Locale(null,'.',0))
+        Decimal.setLocale(Decimal.Locale(null,'.',0))
         assertEquals(
             "18500",
             "18500.000".Dc.toString(),
             "String.Dc Constructor: 18500.000"
         )
-         Decimal.setRounding(Decimal.Rounding(2, Decimal.RoundingMode.HALF_UP))
+        Decimal.initRounding(Decimal.Rounding(2, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "18.5",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-        Decimal.setRounding(Decimal.Rounding(0, Decimal.RoundingMode.HALF_UP))
+        Decimal.initRounding(Decimal.Rounding(0, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "19",
             "18.5001".Dc.toString(),
             "String.Dc Constructor: 18.5001"
         )
-         Decimal.setRounding(Decimal.Rounding(15, Decimal.RoundingMode.HALF_UP))
+        Decimal.initRounding(15, Decimal.RoundingMode.HALF_UP)
     }
 
     @Test fun doubleConstructorTests() {
 
-        Decimal.setRounding(noRounding)
+        Decimal.initRounding(Decimal.noRounding)
         assertEquals(
             "100000.47",
             Decimal(100000.47).toString(),
@@ -84,7 +84,7 @@ class DecimalCoreTest {
             "DoubleConstructor: 15 (d=14)"
         )
 
-        Decimal.setRounding(Decimal.Rounding(5, Decimal.RoundingMode.HALF_UP))
+        Decimal.initRounding(Decimal.Rounding(5, Decimal.RoundingMode.HALF_UP))
 
         assertEquals(
             "15.000001",
@@ -101,7 +101,7 @@ class DecimalCoreTest {
             15.000009.Dc.toString(),  // 6 places when precision is 5!
             "15.000009 DoubleConstructor (d=6, p=5) toString()"
         )
-        Decimal.setRounding(Decimal.Rounding(6, Decimal.RoundingMode.HALF_UP))
+        Decimal.initRounding(Decimal.Rounding(6, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "15.000001",
             15.000001.Dc.toString(),  // 6 places when precision is 6!
@@ -112,7 +112,8 @@ class DecimalCoreTest {
             Decimal(15.000000000000009).toString(),
             "DoubleConstructor: 15.000000000000009 (d=15, p=6)"
         )
-        Decimal.setMaxDecimalPlaces(15)
+        Decimal.initRounding(Decimal.Rounding(15, Decimal.RoundingMode.HALF_UP))
+
         assertEquals(
             "15.000000000000009",
             Decimal(15.000000000000009).toString(),
@@ -127,7 +128,7 @@ class DecimalCoreTest {
 
     @Test fun floatConstructorTests() {
 
-        Decimal.setMaxDecimalPlaces(15) // default
+        Decimal.initRounding(Decimal.Rounding(15, Decimal.RoundingMode.HALF_UP))
         assertEquals(
             "100000.47",
             Decimal(100000.47F).toString(),
@@ -167,7 +168,7 @@ class DecimalCoreTest {
             "stringConstructor: abc",
             {Decimal("abc").toString()}
         )
-         assertEquals(
+        assertEquals(
             "123",
             Decimal("123").toString(),
             "stringConstructor: 123"
@@ -227,13 +228,13 @@ class DecimalCoreTest {
             Decimal("123456.1234567800000000").toString(),
             "stringConstructor: \"123456.1234567800000000\", with rounding"
         )
-       Decimal.setRounding(Decimal.Rounding(3))
+        Decimal.initRounding(Decimal.Rounding(3))
         assertEquals(
             "123456.123",
             Decimal("123456.1234567890123456").toString(),
             "stringConstructor: \"123456.1234567890123456\", with rounding to 3 dplc"
         )
-        Decimal.setRounding(Decimal.Rounding(15))
+        Decimal.initRounding(Decimal.Rounding(15))
         assertEquals(
             "123456.123",
             Decimal("123..456,123",Decimal.Locale('.',',', 5)).toString(),
