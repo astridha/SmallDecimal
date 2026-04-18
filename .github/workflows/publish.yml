@@ -4,7 +4,7 @@ permissions:
 on:
   release:
     types: [released, prereleased]
-  workflow_call:
+  workflow_dispatch:
 jobs:
   publish:
     name: Release build and publish
