@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
 
     id("com.vanniktech.maven.publish") version "0.36.0"
-    id("maven-publish")
+    // id("maven-publish")
 }
 
 group = "io.github.astridha"
