@@ -95,7 +95,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, rounding: Decimal.Ro
 
     // detect if this won't fit into Decimal even after truncating+rounding, because of too many significant places
     if (wouldDecimalStringOverflow(mantissaString, decimalPlaces, desiredDecimalPlaces)) {
-        println("mantissa $mantissaString will overflow")
+        // println("mantissa $mantissaString will overflow")
         val errno = generateErrorCode(Decimal.Error.PARSING_OVERFLOW,"\"$rawNumberString\" cannot fit into a Decimal")
        return Pair(0, errno)
     }
@@ -103,7 +103,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, rounding: Decimal.Ro
     // truncate disposable decimal digits for fitting into Long (and ability to round)
     val disposableDecimalPlaces = numDisposableDecimalPlaces(mantissaString, decimalPlaces)
     if (disposableDecimalPlaces > 0) {
-        println("dispose $disposableDecimalPlaces")
+        // println("dispose $disposableDecimalPlaces")
         mantissaString = mantissaString.dropLast(disposableDecimalPlaces)
         decimalPlaces -= disposableDecimalPlaces
         // once again remove possible trailing 0s from decimals part
@@ -115,7 +115,7 @@ internal fun mkDecimalParseOrNull (rawNumberString: String, rounding: Decimal.Ro
 
     // Give up if mantissa still too long to put it into Long mantissa for later rounding
     if (IsMantissaStringTooLong(mantissaString)) {
-        println("I give up. \"$mantissaString\" still too long.")
+        // println("I give up. \"$mantissaString\" still too long.")
         if (orNull) return null
         val errno = generateErrorCode(Decimal.Error.PARSING_OVERFLOW,"\"$rawNumberString\" cannot fit into a Decimal")
          return Pair(0, errno)

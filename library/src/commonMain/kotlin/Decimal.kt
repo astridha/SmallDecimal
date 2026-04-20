@@ -621,8 +621,6 @@ public class Decimal : Number, Comparable<Decimal> {
     }
 
 
-
-
     /***********  Comparable interface, and equality operators  *************/
 
     /*****  Clone / Copy Functions  *****/

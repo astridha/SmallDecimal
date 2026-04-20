@@ -79,7 +79,7 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, rounding: Decima
         // find the neighboring even value only if exactly in the middle (half) = 5
         // this value can be found in roundingOffset, which is 5[00...]
         val isExactlyHalf = ((currentMantissa % roundingDivisor) == roundingOffset)
-        println("HALF_EVEN: mantissaHalfFraction: ${(currentMantissa % roundingDivisor)}, roundingOffset: ${(roundingOffset)} => isExactlyHalf: $isExactlyHalf")
+        // println("HALF_EVEN: mantissaHalfFraction: ${(currentMantissa % roundingDivisor)}, roundingOffset: ${(roundingOffset)} => isExactlyHalf: $isExactlyHalf")
         if (isExactlyHalf) {
             val nextDigit = (((currentMantissa + roundingOffset) / roundingDivisor) % 10)
             //println("Peep! (($currentMantissa + $roundingOffset) / $roundingDivisor) = ${((currentMantissa+roundingOffset) / roundingDivisor)}, Next digit is: ${nextDigit}")

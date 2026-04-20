@@ -6,12 +6,11 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
 
     id("com.vanniktech.maven.publish") version "0.36.0"
-    // id("maven-publish")
 }
 
 group = "io.github.astridha"
 // artifact="smalldecimal"
-version = "0.8.5"
+version = "0.8.6"
 
 
 kotlin {
@@ -90,7 +89,9 @@ mavenPublishing {
 
     pom {
         name = "KMP Small Decimal Library"
-        description = "Everyday Decimal type on a 64bit footprint with up to 15 decimal places."
+        description = "KMP Common everyday Decimal type on a fixed 64bit footprint. " +
+                "Offers 17-18 decimal digits with up to 15 decimal places. " +
+                "Fully convenient implementation with arithmetical operators and comparators."
         inceptionYear = "2026"
         url = "https://github.com/astridha/smalldecimal/"
         licenses {
