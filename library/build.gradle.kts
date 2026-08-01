@@ -1,16 +1,17 @@
 import com.vanniktech.maven.publish.DeploymentValidation
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
 
-    id("com.vanniktech.maven.publish") version "0.36.0"
+    id("com.vanniktech.maven.publish") version "0.37.0"
 }
 
 group = "io.github.astridha"
 // artifact="smalldecimal"
-version = "0.8.6"
+version = "0.8.8"
 
 
 kotlin {
@@ -48,10 +49,10 @@ kotlin {
     linuxArm64()
 
     mingwX64()
-    macosX64()
+    //macosX64()
     macosArm64()
 
-    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
+    @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser()
         // ...
@@ -71,9 +72,9 @@ kotlin {
         }
 
         commonTest.dependencies {
+            // implementation(kotlin-test)
             implementation(libs.kotlin.test)
-            // implementation(androidx.test.runner)
-            // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+            // implementation(project("libs.kotlin.test"))
         }
 
     }
@@ -88,10 +89,10 @@ mavenPublishing {
     coordinates(group.toString(), "smalldecimal", version.toString())
 
     pom {
-        name = "KMP Small Decimal Library"
-        description = "KMP Common everyday Decimal type on a fixed 64bit footprint. " +
-                "Offers 17-18 decimal digits with up to 15 decimal places. " +
-                "Fully convenient implementation with arithmetical operators and comparators."
+        name = "Small Decimal"
+        description = "KMP Decimal type on a fixed 64bit footprint, " +
+                "for 17-18 decimal digits and up to 15 decimal places. " +
+                "Fully convenient implementation supporting arithmetical operators and comparators."
         inceptionYear = "2026"
         url = "https://github.com/astridha/smalldecimal/"
         licenses {

@@ -30,9 +30,9 @@ internal fun getRoundingModeSpecificCalculation(roundingMode: Decimal.RoundingMo
 }
 
 // Cannot assume that raw values were previously stored in a Decimal. Instead, hey may come from parsing!
-// So the raw mantissa might be a full Long that will not fit into Decimal
-// also, the raw decimal places might be more than MAX_DECIMAL_PLACES
-// desiredDecimals can be below 0, which means that the lowest pre-comma places will also be rounded to 0
+// So the raw mantissa might be a full Long that will not fit into Decimal.
+// also, the raw decimal places might be more than MAX_DECIMAL_PLACES.
+// desiredDecimals can be below 0, which means that the lowest pre-comma places will also be rounded to 0.
 // but resulting decimal places must aim between 0 and 15, independent of  desired precision
 // and long rawMantissa must also be handled and be shortened if greater than MAX_DECIMAL_VALUE/MIN_DECIMAL_VALUE
 internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, rounding: Decimal.Rounding = Decimal.autoRounding): Pair<Long, Int> {
@@ -61,7 +61,7 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, rounding: Decima
         val errno = Decimal.generateErrorCode(Error.ROUNDING_FAILED, "Rounding necessary but forbidden (RoundingMode.UNNECESSARY)")
         return Pair(0L, errno)
     }
-//    println("\n old: mantissa:$currentMantissa, currentDecimals:$currentDecimals, desiredDecimals:$desiredDecimals, mode:$roundingMode")
+
     val wholeRoundingDistance: Int = currentDecimals - desiredDecimals
     if (wholeRoundingDistance > Decimal.MAX_LONG_SIGNIFICANTS) return Pair(0, 0) // more than mantissa width, nothing will be left
 
@@ -71,35 +71,25 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, rounding: Decima
     val roundingDivisor = getPower10(wholeRoundingDistance)
     val roundingOffset = ((roundingDivisor * offsetMultiplicator)/ 10) + offsetBias
 
-//    println("Distance: $wholeRoundingDistance, Mult:$offsetMultiplicator, Bias:$offsetBias => roundingDivisor: $roundingDivisor, roundingOffset: $roundingOffset")
-
     var halfEvenOffset = 0
 
     if (roundingMode == Decimal.RoundingMode.HALF_EVEN) {
         // find the neighboring even value only if exactly in the middle (half) = 5
         // this value can be found in roundingOffset, which is 5[00...]
         val isExactlyHalf = ((currentMantissa % roundingDivisor) == roundingOffset)
-        // println("HALF_EVEN: mantissaHalfFraction: ${(currentMantissa % roundingDivisor)}, roundingOffset: ${(roundingOffset)} => isExactlyHalf: $isExactlyHalf")
         if (isExactlyHalf) {
             val nextDigit = (((currentMantissa + roundingOffset) / roundingDivisor) % 10)
-            //println("Peep! (($currentMantissa + $roundingOffset) / $roundingDivisor) = ${((currentMantissa+roundingOffset) / roundingDivisor)}, Next digit is: ${nextDigit}")
-            if ((nextDigit % 2) != 0L) {halfEvenOffset  = if (currentMantissa < 0) 1 else -1}
-//            println("Next upper neighbor digit is: ${nextDigit}, so decrement: ${halfEvenOffset}")
+             if ((nextDigit % 2) != 0L) {halfEvenOffset  = if (currentMantissa < 0) 1 else -1}
         }
     }
 
     var newMantissa = ((currentMantissa+roundingOffset) / roundingDivisor) + halfEvenOffset
     var newDecimals = if (desiredDecimals >= 0) desiredDecimals; else 0
-//    println("new: m:$newMantissa, d:$newDecimals")
 
     if (upperRoundingDistance > 0) {
         val upperMultiplicator = getPower10(upperRoundingDistance)
         newMantissa *= upperMultiplicator
         newDecimals = 0
-
-//        println("Upper Multiplicator: $upperMultiplicator")
-        // and newDecimals stays 0 because rounding is left to comma!
-//        println("new: m:$newMantissa, d:$newDecimals")
     }
 
     // truncate any empty decimal places that might have come though rounding
@@ -108,7 +98,6 @@ internal fun roundWithMode(rawMantissa: Long, rawDecimals: Int, rounding: Decima
         newDecimals--
     }
     if (abs(newMantissa) > MAX_MANTISSA_VALUE) {
-//        println("Ups!")
         val errno = Decimal.generateErrorCode(Error.NUMERIC_OVERFLOW, "\"Rounded Value won't fit into Decimal\"")
         newMantissa = 0L
         newDecimals = errno

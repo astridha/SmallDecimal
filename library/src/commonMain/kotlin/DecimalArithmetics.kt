@@ -58,7 +58,6 @@ internal class DecimalArithmetics {
                 otherMantissa,
                 otherDecimals
             )
-            // println("Addition: this: $equalizedThisMantissa other: $equalizedOtherMantissa, sum: ${equalizedThisMantissa + equalizedOtherMantissa}")
             if (equalizedThisMantissa.isNegative() == equalizedOtherMantissa.isNegative()) {
                 // addition might overflow!
                 val space: Long = MAX_MANTISSA_VALUE - abs(equalizedThisMantissa)
@@ -96,7 +95,6 @@ internal class DecimalArithmetics {
                 otherMantissa,
                 otherDecimals
             )
-            // println("Subtraction: this: $equalizedThisMantissa other: $equalizedOtherMantissa, diff: ${equalizedThisMantissa - equalizedOtherMantissa}")
             if (equalizedThisMantissa.isNegative() != equalizedOtherMantissa.isNegative()) {
                 // subtraction is addition and might overflow!
                 val space: Long = MAX_MANTISSA_VALUE - abs(equalizedThisMantissa)
@@ -138,7 +136,6 @@ internal class DecimalArithmetics {
             if (thisD.isError() or otherD.isError()) return thisD.clone()
             var (thisMantissa, thisDecimals) = thisD.unpack64()
             var (otherMantissa, otherDecimals) = otherD.unpack64()
-            // println("Multiplication: this: $thisMantissa other: $otherMantissa, product: ${thisMantissa * otherMantissa}")
 
             // 0, no rounding needed
             if ((thisMantissa == 0L) || (otherMantissa == 0L)) return Decimal(0,0)
@@ -178,8 +175,7 @@ internal class DecimalArithmetics {
             if (thisD.isError() or otherD.isError()) return thisD.clone()
             var (thisMantissa, thisDecimals) = thisD.unpack64()
             val (otherMantissa, otherDecimals) = otherD.unpack64()
-            // println("Division: this: $thisMantissa other: $otherMantissa, result: ${if (otherMantissa==0L) "Error" else (thisMantissa / otherMantissa)}")
-            if (otherMantissa == 0L) {
+             if (otherMantissa == 0L) {
                 return generateErrorDecimal(Decimal.Error.DIVISION_BY_0, "$this is divided by 0")
             }
             // manual division
@@ -221,7 +217,6 @@ internal class DecimalArithmetics {
             val divided = Decimal(dividedMantissa, dividedDecimals)
             val subtractor = arithmeticTimes(otherD, divided, Decimal.noRounding)
             val result = arithmeticMinus(thisD, subtractor, Decimal.noRounding)
-            // println("Remainder: this: $thisD, other: $otherD, result: ${(thisD - (otherD * divided))}")
             return result.scale(rounding.decimalPlaces, rounding.roundingMode)
         }
 
@@ -237,7 +232,6 @@ internal class DecimalArithmetics {
             val flooredQuotient = arithmeticDiv( thisD,otherD, Decimal.noRounding).floor()
             val subtractor = arithmeticTimes(otherD, flooredQuotient, Decimal.noRounding)
             val result = arithmeticMinus(thisD, subtractor, Decimal.noRounding)
-            // println("Modulo: a: $thisD, m: $otherD, flooredquotient: $flooredQuotient,  m*floor: ${otherD * flooredQuotient}, subt: $subtractor,  a-(m*floor): ${(thisD - (otherD * flooredQuotient))}, result: $result")
             return result.scale(rounding.decimalPlaces, rounding.roundingMode)
          }
 
